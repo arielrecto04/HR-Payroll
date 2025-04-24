@@ -34,7 +34,7 @@ return new class extends Migration {
 
             //Employment Details
             $table->date('date_hired');
-            $table->string('employment_status');
+            $table->string('employment_status'); // Regular, Probationary, Contractual, Part-Time, Temporary, Intern, Volunteer, Resigned, Terminated, Retired, Deceased.
             $table->timestamps();
             $table->softDeletes();
         });

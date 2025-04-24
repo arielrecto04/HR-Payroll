@@ -77,4 +77,22 @@ class Employee extends Model
     {
         return "{$this->first_name} " . ($this->middle_name ? "{$this->middle_name} " : '') . "{$this->last_name}" . ($this->suffix ? ", {$this->suffix}" : '');
     }
+
+    /**
+     * Get the salaries for the employee.
+     */
+    public function salaries()
+    {
+        return $this->hasMany(EmployeeSalary::class, 'employee_id', 'employee_id');
+    }
+
+    /**
+     * Get the current active salary for the employee.
+     */
+    public function currentSalary()
+    {
+        return $this->hasOne(EmployeeSalary::class, 'employee_id', 'employee_id')
+            ->where('is_active', true)
+            ->latest('effective_date');
+    }
 }
