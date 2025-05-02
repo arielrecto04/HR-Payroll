@@ -89,16 +89,16 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <div className="min-h-screen bg-gray-100 flex">
-            {/* Sidebar */}
-            <div className={`bg-[#2f2f69] text-white ${isMinimized ? 'w-16' : 'w-64'} min-h-screen flex flex-col transition-all duration-300 ease-in-out overflow-hidden`}>
+            {/* Sidebar - Fixed position */}
+            <div className={`bg-[#2f2f69] text-white ${isMinimized ? 'w-16' : 'w-64'} fixed left-0 top-0 bottom-0 z-10 flex flex-col transition-all duration-300 ease-in-out`}>
                 {/* Logo */}
                 <div className="px-4 py-5 flex items-center justify-center border-b border-gray-700">
                     <ApplicationLogo className="h-9 w-auto fill-current text-white" />
                     {!isMinimized && <span className="ml-3 text-xl font-semibold text-white">Payroll</span>}
                 </div>
 
-                {/* Main Navigation Section */}
-                <div className="flex-1 flex flex-col overflow-y-auto py-4">
+                {/* Main Navigation Section - No overflow scroll */}
+                <div className="flex-1 flex flex-col py-4">
                     {/* Main Menu Section */}
                     <div className={`${isMinimized ? 'px-2' : 'px-4'} mb-6`}>
                         {!isMinimized && <p className="text-gray-300 uppercase text-xs font-semibold mb-2">Main Menu</p>}
@@ -175,8 +175,8 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col">
+            {/* Main Content - Add margin to match sidebar width */}
+            <div className={`flex-1 flex flex-col ${isMinimized ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}>
                 <nav className="bg-white border-b border-gray-100 shadow-sm">
                     <div className="mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex h-16 justify-between">
