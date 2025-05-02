@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeSalary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class EmployeeSalaryController extends Controller
 {
@@ -32,7 +33,7 @@ class EmployeeSalaryController extends Controller
     public function create($employeeId)
     {
         $employee = Employee::findOrFail($employeeId);
-        return view('employee-salaries.create', compact('employee'));
+        return Inertia::render('EmployeeSalary/Create', compact('employee'));
     }
 
     /**
@@ -44,17 +45,10 @@ class EmployeeSalaryController extends Controller
 
         $validated = $request->validate([
             'monthly_rate' => 'required|numeric|min:0',
-            'sss_contribution' => 'nullable|numeric|min:0',
-            'philhealth_contribution' => 'nullable|numeric|min:0',
-            'pagibig_contribution' => 'nullable|numeric|min:0',
-            'loan_deductions' => 'nullable|numeric|min:0',
-            'other_deductions' => 'nullable|numeric|min:0',
-            'tax_amount' => 'nullable|numeric|min:0',
-            'allowances' => 'nullable|numeric|min:0',
-            'other_additions' => 'nullable|numeric|min:0',
             'effective_date' => 'required|date',
             'end_date' => 'nullable|date|after:effective_date',
             'is_active' => 'boolean',
+            // Other validations as needed
         ]);
 
         // If this is set as active, deactivate all other active salaries
@@ -70,7 +64,7 @@ class EmployeeSalaryController extends Controller
 
         $salary = EmployeeSalary::create($validated);
 
-        return redirect()->route('employee-salaries.show', [$employeeId, $salary->id])
+        return redirect()->route('employees.show', $employee->id)
             ->with('success', 'Employee salary created successfully.');
     }
 

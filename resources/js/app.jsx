@@ -22,4 +22,5 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+    csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
 });

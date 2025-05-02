@@ -11,27 +11,6 @@ class Employee extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'employee_id';
-
-    /**
-     * The "type" of the primary key ID.
-     *
-     * @var string
-     */
-    protected $keyType = 'string';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -48,6 +27,7 @@ class Employee extends Model
         'nationality',
         'address',
         'contact_number',
+        'email',
         'emergency_contact_name',
         'emergency_contact_number',
         'tin_number',
@@ -56,6 +36,8 @@ class Employee extends Model
         'pagibig_number',
         'date_hired',
         'employment_status',
+        'department',
+        'position',
     ];
 
     /**
@@ -83,7 +65,7 @@ class Employee extends Model
      */
     public function salaries()
     {
-        return $this->hasMany(EmployeeSalary::class, 'employee_id', 'employee_id');
+        return $this->hasMany(EmployeeSalary::class);
     }
 
     /**
@@ -91,7 +73,7 @@ class Employee extends Model
      */
     public function currentSalary()
     {
-        return $this->hasOne(EmployeeSalary::class, 'employee_id', 'employee_id')
+        return $this->hasOne(EmployeeSalary::class)
             ->where('is_active', true)
             ->latest('effective_date');
     }

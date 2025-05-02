@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function EmployeeIndex({ employees = [] }) {
+export default function EmployeeTrashed({ employees = [] }) {
     const [searchTerm, setSearchTerm] = useState('');
     
     const filteredEmployees = employees.filter(employee => 
@@ -15,11 +15,11 @@ export default function EmployeeIndex({ employees = [] }) {
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Employee Management
+                    Deleted Employees
                 </h2>
             }
         >
-            <Head title="Employee Management" />
+            <Head title="Deleted Employees" />
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -27,17 +27,17 @@ export default function EmployeeIndex({ employees = [] }) {
                         <div className="flex items-center">
                             <input 
                                 type="text" 
-                                placeholder="Search employees..." 
+                                placeholder="Search deleted employees..." 
                                 className="rounded-lg border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" 
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                         <Link
-                            href="/employees/create"
-                            className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            href="/employees"
+                            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                         >
-                            Add New Employee
+                            Back to Active Employees
                         </Link>
                     </div>
                     
@@ -57,7 +57,7 @@ export default function EmployeeIndex({ employees = [] }) {
                                                 Department
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Status
+                                                Deleted At
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                                                 Actions
@@ -78,41 +78,34 @@ export default function EmployeeIndex({ employees = [] }) {
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                                         {employee.department || '-'}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-6 py-4 text-sm">
-                                                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                            employee.status === 'Active' ? 'bg-green-100 text-green-800' : 
-                                                            employee.status === 'Inactive' ? 'bg-red-100 text-red-800' : 
-                                                            'bg-gray-100 text-gray-800'
-                                                        }`}>
-                                                            {employee.status || 'Unknown'}
-                                                        </span>
+                                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                                        {employee.deleted_at || '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                                         <Link
-                                                            href={`/employees/${employee.id}`}
+                                                            href={route('employees.restore', employee.id)}
+                                                            method="patch"
+                                                            as="button"
                                                             className="mr-2 text-blue-600 hover:text-blue-900"
                                                         >
-                                                            View
+                                                            Restore
                                                         </Link>
                                                         <Link
-                                                            href={`/employees/${employee.id}/edit`}
-                                                            className="mr-2 text-indigo-600 hover:text-indigo-900"
-                                                        >
-                                                            Edit
-                                                        </Link>
-                                                        <button
-                                                            onClick={() => confirm('Are you sure you want to delete this employee?')}
+                                                            href={route('employees.force-delete', employee.id)}
+                                                            method="delete"
+                                                            as="button"
                                                             className="text-red-600 hover:text-red-900"
+                                                            onClick={() => confirm('Are you sure you want to permanently delete this employee? This action cannot be undone.')}
                                                         >
-                                                            Delete
-                                                        </button>
+                                                            Delete Permanently
+                                                        </Link>
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
                                                 <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
-                                                    No employees found
+                                                    No deleted employees found
                                                 </td>
                                             </tr>
                                         )}

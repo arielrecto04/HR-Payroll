@@ -23,6 +23,7 @@ return new class extends Migration {
             $table->string('nationality')->default('Filipino');
             $table->string('address');
             $table->string('contact_number');
+            $table->string('email');
             $table->string('emergency_contact_name');
             $table->string('emergency_contact_number');
 
@@ -35,6 +36,8 @@ return new class extends Migration {
             //Employment Details
             $table->date('date_hired');
             $table->string('employment_status'); // Regular, Probationary, Contractual, Part-Time, Temporary, Intern, Volunteer, Resigned, Terminated, Retired, Deceased.
+            $table->string('department');
+            $table->string('position');
             $table->timestamps();
             $table->softDeletes();
         });

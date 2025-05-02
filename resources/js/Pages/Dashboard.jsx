@@ -1,8 +1,22 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import { Link } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+
+// Import Dashboard Components
+import StatCard from '@/Components/Dashboard/StatCard';
+import ActivityCard from '@/Components/Dashboard/ActivityCard';
+import QuickLinkItem from '@/Components/Dashboard/QuickLinkItem';
+import EmptyState from '@/Components/Dashboard/EmptyState';
 
 export default function Dashboard() {
+    // Animation state for cards
+    const [animate, setAnimate] = useState(false);
+    
+    useEffect(() => {
+        // Trigger animation after component mounts
+        setAnimate(true);
+    }, []);
+
     return (
         <AuthenticatedLayout
             header={
@@ -13,80 +27,79 @@ export default function Dashboard() {
         >
             <Head title="Dashboard" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div className="py-6">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                        <DashboardCard 
-                            title="Employee Management" 
-                            icon="users" 
-                            count="0" 
-                            link="/employee" 
-                            color="bg-blue-500" 
-                        />
-                        <DashboardCard 
-                            title="Attendance" 
-                            icon="clock" 
-                            count="0" 
-                            link="/attendance" 
-                            color="bg-green-500" 
-                        />
-                        <DashboardCard 
-                            title="Payroll" 
-                            icon="money-bill" 
-                            count="0" 
-                            link="/payroll" 
-                            color="bg-purple-500" 
-                        />
-                        <DashboardCard 
-                            title="Government Remittances" 
-                            icon="building-government" 
-                            count="0" 
-                            link="/payroll/remittances" 
-                            color="bg-red-500" 
-                        />
+                        {/* Stat Cards with staggered animation */}
+                        <div className={`transform transition-all duration-500 ${animate ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`} style={{ transitionDelay: '100ms' }}>
+                            <StatCard 
+                                title="Employee Management" 
+                                icon="users" 
+                                count="0" 
+                                link="/employees" 
+                                color="bg-blue-500" 
+                            />
+                        </div>
+                        <div className={`transform transition-all duration-500 ${animate ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+                            <StatCard 
+                                title="Attendance" 
+                                icon="clock" 
+                                count="0" 
+                                link="/attendances" 
+                                color="bg-green-500" 
+                            />
+                        </div>
+                        <div className={`transform transition-all duration-500 ${animate ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`} style={{ transitionDelay: '300ms' }}>
+                            <StatCard 
+                                title="Payroll" 
+                                icon="money-bill" 
+                                count="0" 
+                                link="#" 
+                                color="bg-purple-500" 
+                            />
+                        </div>
+                        <div className={`transform transition-all duration-500 ${animate ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`} style={{ transitionDelay: '400ms' }}>
+                            <StatCard 
+                                title="Government Remittances" 
+                                icon="building" 
+                                count="0" 
+                                link="#" 
+                                color="bg-red-500" 
+                            />
+                        </div>
                     </div>
 
                     <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                            <div className="border-b border-gray-200 bg-white p-6">
-                                <h3 className="text-lg font-medium text-gray-900">Recent Activities</h3>
-                                <p className="mt-3 text-gray-500">No recent activities found.</p>
-                            </div>
+                        <div className={`transform transition-all duration-500 ${animate ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`} style={{ transitionDelay: '500ms' }}>
+                            <ActivityCard title="Recent Activities">
+                                <EmptyState 
+                                    title="No recent activities found."
+                                    subtitle="Activities will appear here as you use the system."
+                                />
+                            </ActivityCard>
                         </div>
                         
-                        <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                            <div className="border-b border-gray-200 bg-white p-6">
-                                <h3 className="text-lg font-medium text-gray-900">Quick Links</h3>
-                                <div className="mt-3 space-y-2">
-                                    <Link href="/employee/create" className="block text-blue-600 hover:underline">Add New Employee</Link>
-                                    <Link href="/attendance/record" className="block text-blue-600 hover:underline">Record Attendance</Link>
-                                    <Link href="/payroll/generate" className="block text-blue-600 hover:underline">Generate Payroll</Link>
-                                    <Link href="/payroll/reports" className="block text-blue-600 hover:underline">Payroll Reports</Link>
+                        <div className={`transform transition-all duration-500 ${animate ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`} style={{ transitionDelay: '600ms' }}>
+                            <ActivityCard title="Quick Links">
+                                <div className="space-y-1">
+                                    <QuickLinkItem href="/employees/create" icon="user-plus">
+                                        Add New Employee
+                                    </QuickLinkItem>
+                                    <QuickLinkItem href="/attendances/create" icon="calendar-check">
+                                        Record Attendance
+                                    </QuickLinkItem>
+                                    <QuickLinkItem href="#" icon="calculator">
+                                        Generate Payroll
+                                    </QuickLinkItem>
+                                    <QuickLinkItem href="#" icon="file-alt">
+                                        Payroll Reports
+                                    </QuickLinkItem>
                                 </div>
-                            </div>
+                            </ActivityCard>
                         </div>
                     </div>
                 </div>
             </div>
         </AuthenticatedLayout>
-    );
-}
-
-function DashboardCard({ title, icon, count, link, color }) {
-    return (
-        <Link href={link}>
-            <div className="overflow-hidden rounded-lg shadow-sm transition-all hover:shadow-md">
-                <div className={`${color} p-4 text-white`}>
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">{title}</h3>
-                        <i className={`fas fa-${icon} text-2xl`}></i>
-                    </div>
-                    <p className="mt-2 text-3xl font-bold">{count}</p>
-                </div>
-                <div className="bg-white p-4">
-                    <span className="text-sm text-gray-600">View Details →</span>
-                </div>
-            </div>
-        </Link>
     );
 }
