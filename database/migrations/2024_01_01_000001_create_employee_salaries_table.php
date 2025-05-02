@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('employee_salaries', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_id');
-            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
+            $table->unsignedBigInteger('employee_id');
+            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
 
             // Salary Amounts for all rate types
             $table->decimal('monthly_rate', 15, 2);
@@ -21,22 +21,6 @@ return new class extends Migration {
             $table->decimal('daily_rate', 15, 2);
             $table->decimal('hourly_rate', 15, 2);
             $table->decimal('minute_rate', 15, 2);
-
-            // Government Deductions
-            $table->decimal('sss_contribution', 15, 2)->default(0);
-            $table->decimal('philhealth_contribution', 15, 2)->default(0);
-            $table->decimal('pagibig_contribution', 15, 2)->default(0);
-
-            // Other Deductions
-            $table->decimal('loan_deductions', 15, 2)->default(0);
-            $table->decimal('other_deductions', 15, 2)->default(0);
-
-            // Tax
-            $table->decimal('tax_amount', 15, 2)->default(0);
-
-            // Allowances
-            $table->decimal('allowances', 15, 2)->default(0);
-            $table->decimal('other_additions', 15, 2)->default(0);
 
             // Effective Date
             $table->date('effective_date');

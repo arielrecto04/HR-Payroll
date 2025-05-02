@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_id');
-            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
+            $table->unsignedBigInteger('employee_id');
+            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
             $table->date('date');
             $table->time('time_in')->nullable();
             $table->time('time_out')->nullable();
