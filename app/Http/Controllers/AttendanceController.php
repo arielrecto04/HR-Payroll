@@ -7,6 +7,7 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Inertia\Inertia;
 
 class AttendanceController extends Controller
 {
@@ -42,7 +43,11 @@ class AttendanceController extends Controller
 
         $employees = Employee::orderBy('last_name')->get();
 
-        return view('attendances.index', compact('attendances', 'employees'));
+        return Inertia::render('Attendance/Index', [
+            'attendances' => $attendances,
+            'employees' => $employees,
+            'filters' => $request->only(['start_date', 'end_date', 'employee_id', 'status'])
+        ]);
     }
 
     /**
@@ -53,7 +58,10 @@ class AttendanceController extends Controller
         $employees = Employee::orderBy('last_name')->get();
         $today = Carbon::now()->format('Y-m-d');
 
-        return view('attendances.create', compact('employees', 'today'));
+        return Inertia::render('Attendance/Create', [
+            'employees' => $employees,
+            'today' => $today
+        ]);
     }
 
     /**
@@ -120,7 +128,9 @@ class AttendanceController extends Controller
     {
         $attendance->load(['employee', 'overtimeRecords']);
 
-        return view('attendances.show', compact('attendance'));
+        return Inertia::render('Attendance/Show', [
+            'attendance' => $attendance
+        ]);
     }
 
     /**
@@ -131,7 +141,10 @@ class AttendanceController extends Controller
         $attendance->load('employee');
         $employees = Employee::orderBy('last_name')->get();
 
-        return view('attendances.edit', compact('attendance', 'employees'));
+        return Inertia::render('Attendance/Edit', [
+            'attendance' => $attendance,
+            'employees' => $employees
+        ]);
     }
 
     /**
@@ -230,7 +243,7 @@ class AttendanceController extends Controller
     public function import(Request $request)
     {
         // Placeholder for attendance import functionality
-        return view('attendances.import');
+        return Inertia::render('Attendance/Import');
     }
 
     /**

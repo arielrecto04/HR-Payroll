@@ -2,13 +2,13 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function AttendanceIndex({ attendances = [], employees = [] }) {
+export default function AttendanceIndex({ attendances = { data: [] }, employees = [] }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [dateFilter, setDateFilter] = useState('');
     
-    const filteredAttendances = attendances.filter(attendance => 
-        (attendance.employee_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         attendance.employee_id.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    const filteredAttendances = attendances.data.filter(attendance => 
+        (attendance.employee?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         (attendance.employee_id && attendance.employee_id.toString().toLowerCase().includes(searchTerm.toLowerCase()))) &&
         (dateFilter ? attendance.date === dateFilter : true)
     );
 
@@ -29,7 +29,7 @@ export default function AttendanceIndex({ attendances = [], employees = [] }) {
                             <h3 className="mb-4 text-lg font-medium text-gray-900">Record Attendance</h3>
                             <p className="mb-4 text-sm text-gray-500">Record employee time in, time out and attendance status.</p>
                             <Link
-                                href="/attendance/record"
+                                href="/attendances/create"
                                 className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
                                 Record Attendance
@@ -40,7 +40,7 @@ export default function AttendanceIndex({ attendances = [], employees = [] }) {
                             <h3 className="mb-4 text-lg font-medium text-gray-900">Upload Biometric Data</h3>
                             <p className="mb-4 text-sm text-gray-500">Import attendance data from biometric devices.</p>
                             <Link
-                                href="/attendance/import"
+                                href="/attendances/import"
                                 className="inline-flex items-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                             >
                                 Upload Data
@@ -51,7 +51,7 @@ export default function AttendanceIndex({ attendances = [], employees = [] }) {
                             <h3 className="mb-4 text-lg font-medium text-gray-900">Attendance Reports</h3>
                             <p className="mb-4 text-sm text-gray-500">Generate attendance reports for payroll processing.</p>
                             <Link
-                                href="/attendance/reports"
+                                href="/attendances/export"
                                 className="inline-flex items-center rounded-md border border-transparent bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
                             >
                                 View Reports
@@ -117,20 +117,20 @@ export default function AttendanceIndex({ attendances = [], employees = [] }) {
                                                         {attendance.employee_id}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                                        {attendance.employee_name}
+                                                        {attendance.employee?.name || '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                                        {attendance.time_in}
+                                                        {attendance.time_in || '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                                        {attendance.time_out}
+                                                        {attendance.time_out || '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                                         <AttendanceStatus status={attendance.status} />
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                                         <Link
-                                                            href={`/attendance/${attendance.id}/edit`}
+                                                            href={`/attendances/${attendance.id}/edit`}
                                                             className="mr-2 text-indigo-600 hover:text-indigo-900"
                                                         >
                                                             Edit
@@ -147,6 +147,27 @@ export default function AttendanceIndex({ attendances = [], employees = [] }) {
                                         )}
                                     </tbody>
                                 </table>
+                                
+                                {attendances.links && (
+                                    <div className="mt-6 flex justify-center">
+                                        <nav className="flex items-center space-x-2" aria-label="Pagination">
+                                            {attendances.links.map((link, idx) => (
+                                                <Link
+                                                    key={idx}
+                                                    href={link.url || '#'}
+                                                    className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                                                        link.active 
+                                                            ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
+                                                            : (link.url === null 
+                                                                ? 'text-gray-300 cursor-not-allowed' 
+                                                                : 'text-gray-700 hover:bg-gray-50')
+                                                    }`}
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                />
+                                            ))}
+                                        </nav>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -161,19 +182,33 @@ function AttendanceStatus({ status }) {
     
     switch(status) {
         case 'Present':
+        case 'present':
             bgColor = "bg-green-100 text-green-800";
             break;
         case 'Late':
+        case 'late':
             bgColor = "bg-yellow-100 text-yellow-800";
             break;
         case 'Absent':
+        case 'absent':
             bgColor = "bg-red-100 text-red-800";
             break;
         case 'Half Day':
+        case 'half_day':
             bgColor = "bg-orange-100 text-orange-800";
             break;
         case 'On Leave':
+        case 'on_leave':
             bgColor = "bg-blue-100 text-blue-800";
+            break;
+        case 'pending':
+            bgColor = "bg-gray-100 text-gray-800";
+            break;
+        case 'approved':
+            bgColor = "bg-green-100 text-green-800";
+            break;
+        case 'rejected':
+            bgColor = "bg-red-100 text-red-800";
             break;
         default:
             bgColor = "bg-gray-100 text-gray-800";

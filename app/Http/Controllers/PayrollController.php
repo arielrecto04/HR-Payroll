@@ -7,6 +7,7 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Inertia\Inertia;
 
 class PayrollController extends Controller
 {
@@ -36,7 +37,11 @@ class PayrollController extends Controller
         $payrolls = $query->paginate(15);
         $employees = Employee::orderBy('last_name')->get();
 
-        return view('payrolls.index', compact('payrolls', 'employees'));
+        return Inertia::render('Payroll/Index', [
+            'payrollRuns' => $payrolls,
+            'employees' => $employees,
+            'filters' => $request->only(['start_date', 'end_date', 'employee_id', 'status'])
+        ]);
     }
 
     /**
@@ -49,7 +54,12 @@ class PayrollController extends Controller
         $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
         $endOfMonth = Carbon::now()->endOfMonth()->format('Y-m-d');
 
-        return view('payrolls.create', compact('employees', 'today', 'startOfMonth', 'endOfMonth'));
+        return Inertia::render('Payroll/Generate', [
+            'employees' => $employees,
+            'today' => $today,
+            'startOfMonth' => $startOfMonth,
+            'endOfMonth' => $endOfMonth
+        ]);
     }
 
     /**
@@ -99,7 +109,9 @@ class PayrollController extends Controller
     {
         $payroll->load(['employee', 'attendances', 'overtimeRecords']);
 
-        return view('payrolls.show', compact('payroll'));
+        return Inertia::render('Payroll/Show', [
+            'payroll' => $payroll
+        ]);
     }
 
     /**
@@ -116,7 +128,10 @@ class PayrollController extends Controller
         $payroll->load('employee');
         $employees = Employee::orderBy('last_name')->get();
 
-        return view('payrolls.edit', compact('payroll', 'employees'));
+        return Inertia::render('Payroll/Edit', [
+            'payroll' => $payroll,
+            'employees' => $employees
+        ]);
     }
 
     /**
