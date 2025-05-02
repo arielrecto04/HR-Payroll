@@ -3,12 +3,10 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
-import Checkbox from '@/Components/Checkbox';
 import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function EmployeeCreate() {
     const { data, setData, post, processing, errors, reset } = useForm({
-        employee_id: '',
         first_name: '',
         middle_name: '',
         last_name: '',
@@ -22,26 +20,19 @@ export default function EmployeeCreate() {
         email: '',
         emergency_contact_name: '',
         emergency_contact_number: '',
+        // Salary Information
+        basic_salary: '',
+        salary_type: 'Monthly',
+        // Government IDs
+        tin_number: '',
+        sss_number: '',
+        philhealth_number: '',
+        pagibig_number: '',
         date_hired: '',
         employment_status: 'Regular',
         department: '',
         position: '',
-        
-        // Salary Information
-        basic_salary: '',
-        salary_type: 'Monthly',
-        
-        // Government IDs
-        sss_number: '',
-        philhealth_number: '',
-        pagibig_number: '',
-        tin_number: '',
-        
-        // Bank details
-        bank_name: '',
-        bank_account_number: '',
-        
-        is_active: true
+        status: 'Active'
     });
 
     const handleSubmit = (e) => {
@@ -65,27 +56,25 @@ export default function EmployeeCreate() {
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    <div className="mb-6 flex justify-between">
+                        <h3 className="text-lg font-medium text-gray-900">Employee Details</h3>
+                        <Link
+                            href="/employees"
+                            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                            Back to List
+                        </Link>
+                    </div>
+
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             <form onSubmit={handleSubmit}>
-                                <div className="mb-6 border-b border-gray-200 pb-5">
-                                    <h3 className="mb-4 text-lg font-medium">Personal Information</h3>
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                {/* Personal Information */}
+                                <div className="mb-8">
+                                    <h4 className="mb-4 text-md font-medium text-gray-700">Personal Information</h4>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                         <div>
-                                            <InputLabel htmlFor="employee_id" value="Employee ID" />
-                                            <TextInput
-                                                id="employee_id"
-                                                type="text"
-                                                name="employee_id"
-                                                value={data.employee_id}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('employee_id', e.target.value)}
-                                                required
-                                            />
-                                            <InputError message={errors.employee_id} className="mt-2" />
-                                        </div>
-                                        <div>
-                                            <InputLabel htmlFor="first_name" value="First Name" />
+                                            <InputLabel htmlFor="first_name" value="First Name" required />
                                             <TextInput
                                                 id="first_name"
                                                 type="text"
@@ -97,6 +86,7 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.first_name} className="mt-2" />
                                         </div>
+
                                         <div>
                                             <InputLabel htmlFor="middle_name" value="Middle Name" />
                                             <TextInput
@@ -109,8 +99,9 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.middle_name} className="mt-2" />
                                         </div>
+
                                         <div>
-                                            <InputLabel htmlFor="last_name" value="Last Name" />
+                                            <InputLabel htmlFor="last_name" value="Last Name" required />
                                             <TextInput
                                                 id="last_name"
                                                 type="text"
@@ -122,8 +113,9 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.last_name} className="mt-2" />
                                         </div>
+
                                         <div>
-                                            <InputLabel htmlFor="suffix" value="Name Extension (Jr, Sr, III)" />
+                                            <InputLabel htmlFor="suffix" value="Suffix" />
                                             <TextInput
                                                 id="suffix"
                                                 type="text"
@@ -134,8 +126,9 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.suffix} className="mt-2" />
                                         </div>
+
                                         <div>
-                                            <InputLabel htmlFor="birth_date" value="Birth Date" />
+                                            <InputLabel htmlFor="birth_date" value="Birth Date" required />
                                             <TextInput
                                                 id="birth_date"
                                                 type="date"
@@ -147,29 +140,32 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.birth_date} className="mt-2" />
                                         </div>
+
                                         <div>
-                                            <InputLabel htmlFor="gender" value="Gender" />
+                                            <InputLabel htmlFor="gender" value="Gender" required />
                                             <select
                                                 id="gender"
                                                 name="gender"
                                                 value={data.gender}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                 onChange={(e) => setData('gender', e.target.value)}
                                                 required
                                             >
                                                 <option value="">Select Gender</option>
                                                 <option value="Male">Male</option>
                                                 <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
                                             </select>
                                             <InputError message={errors.gender} className="mt-2" />
                                         </div>
+
                                         <div>
-                                            <InputLabel htmlFor="civil_status" value="Civil Status" />
+                                            <InputLabel htmlFor="civil_status" value="Civil Status" required />
                                             <select
                                                 id="civil_status"
                                                 name="civil_status"
                                                 value={data.civil_status}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                 onChange={(e) => setData('civil_status', e.target.value)}
                                                 required
                                             >
@@ -178,11 +174,33 @@ export default function EmployeeCreate() {
                                                 <option value="Married">Married</option>
                                                 <option value="Widowed">Widowed</option>
                                                 <option value="Separated">Separated</option>
+                                                <option value="Divorced">Divorced</option>
                                             </select>
                                             <InputError message={errors.civil_status} className="mt-2" />
                                         </div>
-                                        <div className="md:col-span-3">
-                                            <InputLabel htmlFor="address" value="Address" />
+
+                                        <div>
+                                            <InputLabel htmlFor="nationality" value="Nationality" required />
+                                            <TextInput
+                                                id="nationality"
+                                                type="text"
+                                                name="nationality"
+                                                value={data.nationality}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('nationality', e.target.value)}
+                                                required
+                                            />
+                                            <InputError message={errors.nationality} className="mt-2" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Contact Information */}
+                                <div className="mb-8">
+                                    <h4 className="mb-4 text-md font-medium text-gray-700">Contact Information</h4>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                        <div>
+                                            <InputLabel htmlFor="address" value="Address" required />
                                             <TextInput
                                                 id="address"
                                                 type="text"
@@ -194,8 +212,9 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.address} className="mt-2" />
                                         </div>
+
                                         <div>
-                                            <InputLabel htmlFor="contact_number" value="Contact Number" />
+                                            <InputLabel htmlFor="contact_number" value="Contact Number" required />
                                             <TextInput
                                                 id="contact_number"
                                                 type="text"
@@ -207,8 +226,9 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.contact_number} className="mt-2" />
                                         </div>
+
                                         <div>
-                                            <InputLabel htmlFor="email" value="Email" />
+                                            <InputLabel htmlFor="email" value="Email" required />
                                             <TextInput
                                                 id="email"
                                                 type="email"
@@ -219,15 +239,10 @@ export default function EmployeeCreate() {
                                                 required
                                             />
                                             <InputError message={errors.email} className="mt-2" />
-                                        </div>
-                                    </div>
                                 </div>
 
-                                <div className="mb-6 border-b border-gray-200 pb-5">
-                                    <h3 className="mb-4 text-lg font-medium">Emergency Contact</h3>
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                         <div>
-                                            <InputLabel htmlFor="emergency_contact_name" value="Emergency Contact Name" />
+                                            <InputLabel htmlFor="emergency_contact_name" value="Emergency Contact Name" required />
                                             <TextInput
                                                 id="emergency_contact_name"
                                                 type="text"
@@ -239,8 +254,9 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.emergency_contact_name} className="mt-2" />
                                         </div>
+
                                         <div>
-                                            <InputLabel htmlFor="emergency_contact_number" value="Emergency Contact Number" />
+                                            <InputLabel htmlFor="emergency_contact_number" value="Emergency Contact Number" required />
                                             <TextInput
                                                 id="emergency_contact_number"
                                                 type="text"
@@ -255,11 +271,12 @@ export default function EmployeeCreate() {
                                     </div>
                                 </div>
 
-                                <div className="mb-6 border-b border-gray-200 pb-5">
-                                    <h3 className="mb-4 text-lg font-medium">Employment Information</h3>
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                {/* Employment Information */}
+                                <div className="mb-8">
+                                    <h4 className="mb-4 text-md font-medium text-gray-700">Employment Information</h4>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                         <div>
-                                            <InputLabel htmlFor="date_hired" value="Date Hired" />
+                                            <InputLabel htmlFor="date_hired" value="Date Hired" required />
                                             <TextInput
                                                 id="date_hired"
                                                 type="date"
@@ -271,24 +288,7 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.date_hired} className="mt-2" />
                                         </div>
-                                        <div>
-                                            <InputLabel htmlFor="employment_status" value="Employment Status" />
-                                            <select
-                                                id="employment_status"
-                                                name="employment_status"
-                                                value={data.employment_status}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                onChange={(e) => setData('employment_status', e.target.value)}
-                                                required
-                                            >
-                                                <option value="">Select Employment Status</option>
-                                                <option value="Regular">Regular</option>
-                                                <option value="Contractual">Contractual</option>
-                                                <option value="Probationary">Probationary</option>
-                                                <option value="Part-time">Part-time</option>
-                                            </select>
-                                            <InputError message={errors.employment_status} className="mt-2" />
-                                        </div>
+
                                         <div>
                                             <InputLabel htmlFor="department" value="Department" />
                                             <TextInput
@@ -298,10 +298,10 @@ export default function EmployeeCreate() {
                                                 value={data.department}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('department', e.target.value)}
-                                                required
                                             />
                                             <InputError message={errors.department} className="mt-2" />
                                         </div>
+
                                         <div>
                                             <InputLabel htmlFor="position" value="Position" />
                                             <TextInput
@@ -311,10 +311,54 @@ export default function EmployeeCreate() {
                                                 value={data.position}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('position', e.target.value)}
-                                                required
                                             />
                                             <InputError message={errors.position} className="mt-2" />
                                         </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="employment_status" value="Employment Status" required />
+                                            <select
+                                                id="employment_status"
+                                                name="employment_status"
+                                                value={data.employment_status}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                onChange={(e) => setData('employment_status', e.target.value)}
+                                                required
+                                            >
+                                                <option value="">Select Employment Status</option>
+                                                <option value="Regular">Regular</option>
+                                                <option value="Probationary">Probationary</option>
+                                                <option value="Contract">Contract</option>
+                                                <option value="Part-time">Part-time</option>
+                                                <option value="Project-based">Project-based</option>
+                                            </select>
+                                            <InputError message={errors.employment_status} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="status" value="Status" required />
+                                            <select
+                                                id="status"
+                                                name="status"
+                                                value={data.status}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                onChange={(e) => setData('status', e.target.value)}
+                                                required
+                                            >
+                                                <option value="Active">Active</option>
+                                                <option value="Inactive">Inactive</option>
+                                                <option value="On Leave">On Leave</option>
+                                                <option value="Terminated">Terminated</option>
+                                            </select>
+                                            <InputError message={errors.status} className="mt-2" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Salary Information */}
+                                <div className="mb-8">
+                                    <h4 className="mb-4 text-md font-medium text-gray-700">Salary Information</h4>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                         <div>
                                             <InputLabel htmlFor="basic_salary" value="Basic Salary" />
                                             <TextInput
@@ -334,7 +378,7 @@ export default function EmployeeCreate() {
                                                 id="salary_type"
                                                 name="salary_type"
                                                 value={data.salary_type}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                 onChange={(e) => setData('salary_type', e.target.value)}
                                             >
                                                 <option value="Monthly">Monthly</option>
@@ -345,58 +389,13 @@ export default function EmployeeCreate() {
                                             </select>
                                             <InputError message={errors.salary_type} className="mt-2" />
                                         </div>
-                                        <div className="flex items-center pt-5">
-                                            <Checkbox
-                                                id="is_active"
-                                                name="is_active"
-                                                checked={data.is_active}
-                                                onChange={(e) => setData('is_active', e.target.checked)}
-                                            />
-                                            <InputLabel htmlFor="is_active" value="Active Employee" className="ml-2" />
-                                            <InputError message={errors.is_active} className="mt-2" />
-                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="mb-6 border-b border-gray-200 pb-5">
-                                    <h3 className="mb-4 text-lg font-medium">Government IDs</h3>
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                        <div>
-                                            <InputLabel htmlFor="sss_number" value="SSS Number" />
-                                            <TextInput
-                                                id="sss_number"
-                                                type="text"
-                                                name="sss_number"
-                                                value={data.sss_number}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('sss_number', e.target.value)}
-                                            />
-                                            <InputError message={errors.sss_number} className="mt-2" />
-                                        </div>
-                                        <div>
-                                            <InputLabel htmlFor="philhealth_number" value="PhilHealth Number" />
-                                            <TextInput
-                                                id="philhealth_number"
-                                                type="text"
-                                                name="philhealth_number"
-                                                value={data.philhealth_number}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('philhealth_number', e.target.value)}
-                                            />
-                                            <InputError message={errors.philhealth_number} className="mt-2" />
-                                        </div>
-                                        <div>
-                                            <InputLabel htmlFor="pagibig_number" value="Pag-IBIG Number" />
-                                            <TextInput
-                                                id="pagibig_number"
-                                                type="text"
-                                                name="pagibig_number"
-                                                value={data.pagibig_number}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('pagibig_number', e.target.value)}
-                                            />
-                                            <InputError message={errors.pagibig_number} className="mt-2" />
-                                        </div>
+                                {/* Government IDs */}
+                                <div className="mb-8">
+                                    <h4 className="mb-4 text-md font-medium text-gray-700">Government IDs</h4>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                         <div>
                                             <InputLabel htmlFor="tin_number" value="TIN Number" />
                                             <TextInput
@@ -409,47 +408,58 @@ export default function EmployeeCreate() {
                                             />
                                             <InputError message={errors.tin_number} className="mt-2" />
                                         </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="sss_number" value="SSS Number" />
+                                            <TextInput
+                                                id="sss_number"
+                                                type="text"
+                                                name="sss_number"
+                                                value={data.sss_number}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('sss_number', e.target.value)}
+                                            />
+                                            <InputError message={errors.sss_number} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="philhealth_number" value="PhilHealth Number" />
+                                            <TextInput
+                                                id="philhealth_number"
+                                                type="text"
+                                                name="philhealth_number"
+                                                value={data.philhealth_number}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('philhealth_number', e.target.value)}
+                                            />
+                                            <InputError message={errors.philhealth_number} className="mt-2" />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel htmlFor="pagibig_number" value="Pag-IBIG Number" />
+                                            <TextInput
+                                                id="pagibig_number"
+                                                type="text"
+                                                name="pagibig_number"
+                                                value={data.pagibig_number}
+                                                className="mt-1 block w-full"
+                                                onChange={(e) => setData('pagibig_number', e.target.value)}
+                                            />
+                                            <InputError message={errors.pagibig_number} className="mt-2" />
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="mb-6">
-                                    <h3 className="mb-4 text-lg font-medium">Bank Details</h3>
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                        <div>
-                                            <InputLabel htmlFor="bank_name" value="Bank Name" />
-                                            <TextInput
-                                                id="bank_name"
-                                                type="text"
-                                                name="bank_name"
-                                                value={data.bank_name}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('bank_name', e.target.value)}
-                                            />
-                                            <InputError message={errors.bank_name} className="mt-2" />
-                                        </div>
-                                        <div>
-                                            <InputLabel htmlFor="bank_account_number" value="Bank Account Number" />
-                                            <TextInput
-                                                id="bank_account_number"
-                                                type="text"
-                                                name="bank_account_number"
-                                                value={data.bank_account_number}
-                                                className="mt-1 block w-full"
-                                                onChange={(e) => setData('bank_account_number', e.target.value)}
-                                            />
-                                            <InputError message={errors.bank_account_number} className="mt-2" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-end gap-4">
+                                <div className="flex items-center justify-end">
                                     <Link
                                         href={route('employees.index')}
-                                        className="rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25"
+                                        className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                                     >
                                         Cancel
                                     </Link>
-                                    <PrimaryButton disabled={processing}>Save Employee</PrimaryButton>
+                                    <PrimaryButton className="ml-4" disabled={processing}>
+                                        Save Employee
+                                    </PrimaryButton>
                                 </div>
                             </form>
                         </div>

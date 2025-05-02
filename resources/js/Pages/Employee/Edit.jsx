@@ -1,31 +1,43 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function EmployeeEdit({ employee }) {
+    // Format dates properly
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+    };
+
     const { data, setData, put, processing, errors } = useForm({
         employee_id: employee.employee_id || '',
         first_name: employee.first_name || '',
         middle_name: employee.middle_name || '',
         last_name: employee.last_name || '',
         suffix: employee.suffix || '',
-        birth_date: employee.birth_date || '',
+        birth_date: formatDate(employee.birth_date) || '',
         gender: employee.gender || '',
         civil_status: employee.civil_status || '',
         nationality: employee.nationality || '',
         address: employee.address || '',
         contact_number: employee.contact_number || '',
+        email: employee.email || '',
         emergency_contact_name: employee.emergency_contact_name || '',
         emergency_contact_number: employee.emergency_contact_number || '',
+        // Salary Information
+        basic_salary: employee.basic_salary || '',
+        salary_type: employee.salary_type || 'Monthly',
+        // Government IDs
         tin_number: employee.tin_number || '',
         sss_number: employee.sss_number || '',
         philhealth_number: employee.philhealth_number || '',
         pagibig_number: employee.pagibig_number || '',
-        date_hired: employee.date_hired || '',
+        date_hired: formatDate(employee.date_hired) || '',
         employment_status: employee.employment_status || '',
         department: employee.department || '',
         position: employee.position || '',
@@ -34,7 +46,16 @@ export default function EmployeeEdit({ employee }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        put(route('employees.update', employee.id));
+        console.log('Submitting form with data:', data);
+        
+        put(route('employees.update', employee.id), {
+            onSuccess: () => {
+                console.log('Employee updated successfully');
+            },
+            onError: (errors) => {
+                console.error('Update failed with errors:', errors);
+            },
+        });
     };
 
     const handleInputChange = (e) => {
@@ -240,6 +261,20 @@ export default function EmployeeEdit({ employee }) {
                                         </div>
 
                                         <div>
+                                            <InputLabel htmlFor="email" value="Email" required />
+                                            <TextInput
+                                                id="email"
+                                                type="email"
+                                                name="email"
+                                                value={data.email}
+                                                className="mt-1 block w-full"
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                            <InputError message={errors.email} className="mt-2" />
+                                        </div>
+
+                                        <div>
                                             <InputLabel htmlFor="emergency_contact_name" value="Emergency Contact Name" required />
                                             <TextInput
                                                 id="emergency_contact_name"
@@ -349,6 +384,43 @@ export default function EmployeeEdit({ employee }) {
                                                 <option value="Terminated">Terminated</option>
                                             </select>
                                             <InputError message={errors.status} className="mt-2" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Salary Information */}
+                                <div className="mb-8">
+                                    <h4 className="mb-4 text-md font-medium text-gray-700">Salary Information</h4>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                        <div>
+                                            <InputLabel htmlFor="basic_salary" value="Basic Salary" />
+                                            <TextInput
+                                                id="basic_salary"
+                                                type="number"
+                                                step="0.01"
+                                                name="basic_salary"
+                                                value={data.basic_salary}
+                                                className="mt-1 block w-full"
+                                                onChange={handleInputChange}
+                                            />
+                                            <InputError message={errors.basic_salary} className="mt-2" />
+                                        </div>
+                                        <div>
+                                            <InputLabel htmlFor="salary_type" value="Salary Type" />
+                                            <select
+                                                id="salary_type"
+                                                name="salary_type"
+                                                value={data.salary_type}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                onChange={handleInputChange}
+                                            >
+                                                <option value="Monthly">Monthly</option>
+                                                <option value="Semi-Monthly">Semi-Monthly</option>
+                                                <option value="Weekly">Weekly</option>
+                                                <option value="Daily">Daily</option>
+                                                <option value="Hourly">Hourly</option>
+                                            </select>
+                                            <InputError message={errors.salary_type} className="mt-2" />
                                         </div>
                                     </div>
                                 </div>

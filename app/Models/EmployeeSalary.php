@@ -60,6 +60,13 @@ class EmployeeSalary extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['total_deductions', 'total_additions', 'net_salary', 'salary_type'];
+
+    /**
      * Boot the model.
      */
     protected static function boot()
@@ -131,5 +138,25 @@ class EmployeeSalary extends Model
     public function getNetSalaryAttribute()
     {
         return $this->monthly_rate - $this->total_deductions + $this->total_additions;
+    }
+
+    /**
+     * Get the salary type based on the rates
+     * 
+     * @return string
+     */
+    public function getSalaryTypeAttribute()
+    {
+        // Determine salary type by checking which rate is primarily set
+        // We'll assume the rate with the highest precision is the primary one
+        if ($this->hourly_rate && $this->hourly_rate > 0 && $this->hourly_rate * 8 * 22 == $this->monthly_rate) {
+            return 'Hourly';
+        } elseif ($this->daily_rate && $this->daily_rate > 0 && $this->daily_rate * 22 == $this->monthly_rate) {
+            return 'Daily';
+        } elseif ($this->semi_monthly_rate && $this->semi_monthly_rate > 0 && $this->semi_monthly_rate * 2 == $this->monthly_rate) {
+            return 'Semi-Monthly';
+        } else {
+            return 'Monthly'; // Default
+        }
     }
 }

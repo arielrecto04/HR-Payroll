@@ -38,6 +38,7 @@ return new class extends Migration {
             $table->string('employment_status'); // Regular, Probationary, Contractual, Part-Time, Temporary, Intern, Volunteer, Resigned, Terminated, Retired, Deceased.
             $table->string('department');
             $table->string('position');
+            $table->string('status')->default('Active'); // Active, Inactive, On Leave, Terminated
             $table->timestamps();
             $table->softDeletes();
         });

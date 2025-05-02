@@ -72,7 +72,7 @@ export default function EmployeeIndex({ employees = [] }) {
                                                         {employee.employee_id || '-'}
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <div className="text-sm font-medium text-gray-900">{employee.name || '-'}</div>
+                                                        <div className="text-sm font-medium text-gray-900">{employee.last_name || '-'} {employee.first_name || '-'} {employee.middle_name || '-'}</div>
                                                         <div className="text-sm text-gray-500">{employee.position || '-'}</div>
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
