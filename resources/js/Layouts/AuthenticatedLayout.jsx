@@ -46,9 +46,10 @@ const sidebarItems = [
     },
     {
         name: 'Payroll',
-        href: '#',
+        href: '/payroll',
+        routeName: 'payroll.index',
         icon: 'payroll',
-        active: () => false
+        active: route => route().current('payroll.*')
     },
     {
         name: 'Deductions',

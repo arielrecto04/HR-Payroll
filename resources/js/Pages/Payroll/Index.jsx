@@ -6,7 +6,10 @@ export default function PayrollIndex({ payrollRuns = [] }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [periodFilter, setPeriodFilter] = useState('');
     
-    const filteredPayrollRuns = payrollRuns.filter(payroll => 
+    // Check if payrollRuns is a paginator object with data property or an array
+    const payrollData = Array.isArray(payrollRuns) ? payrollRuns : (payrollRuns.data || []);
+    
+    const filteredPayrollRuns = payrollData.filter(payroll => 
         (payroll.payroll_period.toLowerCase().includes(searchTerm.toLowerCase()) ||
          payroll.status.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (periodFilter ? payroll.period_type === periodFilter : true)

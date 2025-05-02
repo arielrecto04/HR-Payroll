@@ -98,7 +98,7 @@ class PayrollController extends Controller
         // Process the payroll
         $payroll->process()->save();
 
-        return redirect()->route('payrolls.show', $payroll->id)
+        return redirect()->route('payroll.show', $payroll->id)
             ->with('success', 'Payroll record created and processed successfully.');
     }
 
@@ -121,7 +121,7 @@ class PayrollController extends Controller
     {
         // Only allow editing of draft payrolls
         if ($payroll->status !== 'draft') {
-            return redirect()->route('payrolls.show', $payroll->id)
+            return redirect()->route('payroll.show', $payroll->id)
                 ->with('error', 'Only draft payrolls can be edited.');
         }
 
@@ -141,7 +141,7 @@ class PayrollController extends Controller
     {
         // Only allow updating of draft payrolls
         if ($payroll->status !== 'draft') {
-            return redirect()->route('payrolls.show', $payroll->id)
+            return redirect()->route('payroll.show', $payroll->id)
                 ->with('error', 'Only draft payrolls can be updated.');
         }
 
@@ -174,7 +174,7 @@ class PayrollController extends Controller
         // Reprocess the payroll
         $payroll->process()->save();
 
-        return redirect()->route('payrolls.show', $payroll->id)
+        return redirect()->route('payroll.show', $payroll->id)
             ->with('success', 'Payroll record updated and reprocessed successfully.');
     }
 
@@ -185,13 +185,13 @@ class PayrollController extends Controller
     {
         // Only allow deletion of draft payrolls
         if ($payroll->status !== 'draft') {
-            return redirect()->route('payrolls.show', $payroll->id)
+            return redirect()->route('payroll.show', $payroll->id)
                 ->with('error', 'Only draft payrolls can be deleted.');
         }
 
         $payroll->delete();
 
-        return redirect()->route('payrolls.index')
+        return redirect()->route('payroll.index')
             ->with('success', 'Payroll record deleted successfully.');
     }
 
@@ -201,13 +201,13 @@ class PayrollController extends Controller
     public function approve(Payroll $payroll)
     {
         if ($payroll->status !== 'processing') {
-            return redirect()->route('payrolls.show', $payroll->id)
+            return redirect()->route('payroll.show', $payroll->id)
                 ->with('error', 'Only processing payrolls can be approved.');
         }
 
         $payroll->approve();
 
-        return redirect()->route('payrolls.show', $payroll->id)
+        return redirect()->route('payroll.show', $payroll->id)
             ->with('success', 'Payroll approved successfully.');
     }
 
@@ -217,7 +217,7 @@ class PayrollController extends Controller
     public function markAsPaid(Request $request, Payroll $payroll)
     {
         if ($payroll->status !== 'approved') {
-            return redirect()->route('payrolls.show', $payroll->id)
+            return redirect()->route('payroll.show', $payroll->id)
                 ->with('error', 'Only approved payrolls can be marked as paid.');
         }
 
@@ -227,7 +227,7 @@ class PayrollController extends Controller
 
         $payroll->markAsPaid($validated['notes'] ?? null);
 
-        return redirect()->route('payrolls.show', $payroll->id)
+        return redirect()->route('payroll.show', $payroll->id)
             ->with('success', 'Payroll marked as paid successfully.');
     }
 
@@ -281,11 +281,53 @@ class PayrollController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('payrolls.index')
+            return redirect()->route('payroll.index')
                 ->with('error', 'Error generating batch payroll: ' . $e->getMessage());
         }
 
-        return redirect()->route('payrolls.index')
+        return redirect()->route('payroll.index')
             ->with('success', "Batch payroll processing completed. Created: $created, Skipped: $skipped");
+    }
+
+    /**
+     * Display payroll reports interface.
+     */
+    public function reports()
+    {
+        return Inertia::render('Payroll/Reports', [
+            'reportTypes' => [
+                'payroll_summary' => 'Payroll Summary Report',
+                'tax_report' => 'Tax Withholding Report',
+                'earnings_report' => 'Earnings Report',
+                'deductions_report' => 'Deductions Report',
+            ]
+        ]);
+    }
+
+    /**
+     * Display government remittances interface.
+     */
+    public function remittances()
+    {
+        return Inertia::render('Payroll/Remittances', [
+            'remittanceTypes' => [
+                'sss' => 'SSS Contributions',
+                'philhealth' => 'PhilHealth Contributions',
+                'pagibig' => 'Pag-IBIG Contributions',
+                'tax' => 'BIR Tax Remittances',
+            ]
+        ]);
+    }
+
+    /**
+     * Display payslips for a payroll.
+     */
+    public function payslips(Payroll $payroll)
+    {
+        $payroll->load('employee');
+
+        return Inertia::render('Payroll/Payslips', [
+            'payroll' => $payroll,
+        ]);
     }
 }

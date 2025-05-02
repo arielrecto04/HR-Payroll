@@ -5,6 +5,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeSalaryController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\OvertimeRecordController;
+use App\Http\Controllers\PayrollController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -73,6 +74,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('overtime-records/{overtimeRecord}', [OvertimeRecordController::class, 'destroy'])->name('overtime-records.destroy');
     Route::patch('overtime-records/{overtimeRecord}/approve', [OvertimeRecordController::class, 'approve'])->name('overtime-records.approve');
     Route::patch('overtime-records/{overtimeRecord}/reject', [OvertimeRecordController::class, 'reject'])->name('overtime-records.reject');
+
+    // Payroll Routes
+    Route::get('payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('payroll/generate', [PayrollController::class, 'create'])->name('payroll.create');
+    Route::post('payroll', [PayrollController::class, 'store'])->name('payroll.store');
+    Route::get('payroll/reports', [PayrollController::class, 'reports'])->name('payroll.reports');
+    Route::get('payroll/remittances', [PayrollController::class, 'remittances'])->name('payroll.remittances');
+    Route::get('payroll/{payroll}/view', [PayrollController::class, 'show'])->name('payroll.show');
+    Route::get('payroll/{payroll}/edit', [PayrollController::class, 'edit'])->name('payroll.edit');
+    Route::put('payroll/{payroll}', [PayrollController::class, 'update'])->name('payroll.update');
+    Route::delete('payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+    Route::patch('payroll/{payroll}/approve', [PayrollController::class, 'approve'])->name('payroll.approve');
+    Route::patch('payroll/{payroll}/paid', [PayrollController::class, 'markAsPaid'])->name('payroll.paid');
+    Route::get('payroll/{payroll}/payslips', [PayrollController::class, 'payslips'])->name('payroll.payslips');
+    Route::post('payroll/batch', [PayrollController::class, 'generateBatch'])->name('payroll.batch');
 });
 
 require __DIR__ . '/auth.php';
