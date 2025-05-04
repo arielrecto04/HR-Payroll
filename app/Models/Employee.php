@@ -133,4 +133,12 @@ class Employee extends Model
             ->where('is_active', true)
             ->latest('effective_date');
     }
+
+    /**
+     * Get the attendance records for the employee.
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'employee_id', 'id');
+    }
 }

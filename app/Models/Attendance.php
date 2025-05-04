@@ -43,11 +43,26 @@ class Attendance extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'total_hours',
+        'total_overtime_hours',
+        'time_in_formatted',
+        'time_out_formatted',
+        'time_in_for_input',
+        'time_out_for_input',
+        'date_formatted'
+    ];
+
+    /**
      * Get the employee that owns the attendance record.
      */
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
+        return $this->belongsTo(Employee::class, 'employee_id', 'id');
     }
 
     /**
@@ -100,7 +115,14 @@ class Attendance extends Model
      */
     public function scopeForEmployee($query, $employeeId)
     {
-        return $query->where('employee_id', $employeeId);
+        // Find the employee's numeric ID from their string employee_id
+        $employee = Employee::where('employee_id', $employeeId)->first();
+
+        if ($employee) {
+            return $query->where('employee_id', $employee->id);
+        }
+
+        return $query;
     }
 
     /**
@@ -114,5 +136,70 @@ class Attendance extends Model
     public function scopeForDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('date', [$startDate, $endDate]);
+    }
+
+    /**
+     * Get the time_in attribute formatted for display.
+     *
+     * @return string|null
+     */
+    public function getTimeInFormattedAttribute()
+    {
+        if ($this->time_in) {
+            return Carbon::parse($this->time_in)->format('h:i A');
+        }
+        return null;
+    }
+
+    /**
+     * Get the time_out attribute formatted for display.
+     *
+     * @return string|null
+     */
+    public function getTimeOutFormattedAttribute()
+    {
+        if ($this->time_out) {
+            return Carbon::parse($this->time_out)->format('h:i A');
+        }
+        return null;
+    }
+
+    /**
+     * Get the time_in attribute for form inputs (24-hour format).
+     *
+     * @return string|null
+     */
+    public function getTimeInForInputAttribute()
+    {
+        if ($this->time_in) {
+            return Carbon::parse($this->time_in)->format('H:i');
+        }
+        return null;
+    }
+
+    /**
+     * Get the time_out attribute for form inputs (24-hour format).
+     *
+     * @return string|null
+     */
+    public function getTimeOutForInputAttribute()
+    {
+        if ($this->time_out) {
+            return Carbon::parse($this->time_out)->format('H:i');
+        }
+        return null;
+    }
+
+    /**
+     * Get the date attribute formatted for display.
+     *
+     * @return string|null
+     */
+    public function getDateFormattedAttribute()
+    {
+        if ($this->date) {
+            return $this->date->format('Y-m-d');
+        }
+        return null;
     }
 }

@@ -31,7 +31,11 @@ class AttendanceController extends Controller
 
         // Filter by employee if provided
         if ($request->filled('employee_id')) {
-            $query->forEmployee($request->employee_id);
+            // Find the employee by employee_id string and use their numeric id
+            $employee = Employee::where('employee_id', $request->employee_id)->first();
+            if ($employee) {
+                $query->where('attendances.employee_id', $employee->id);
+            }
         }
 
         // Filter by status if provided
@@ -73,15 +77,24 @@ class AttendanceController extends Controller
             'employee_id' => 'required|exists:employees,employee_id',
             'date' => 'required|date',
             'time_in' => 'nullable|date_format:H:i',
-            'time_out' => 'nullable|date_format:H:i|after:time_in',
+            'time_out' => 'nullable|date_format:H:i',  // Removed after:time_in validation to handle overnight shifts
             'days_worked' => 'nullable|numeric|min:0|max:1',
             'late_minutes' => 'nullable|integer|min:0',
             'is_absent' => 'boolean',
             'remarks' => 'nullable|string',
         ]);
 
+        // Find the employee record to get the numeric ID
+        $employee = Employee::where('employee_id', $validated['employee_id'])->first();
+
+        if (!$employee) {
+            return back()->withErrors([
+                'employee_id' => 'Employee not found.'
+            ])->withInput();
+        }
+
         // Check for existing attendance
-        $existingAttendance = Attendance::where('employee_id', $validated['employee_id'])
+        $existingAttendance = Attendance::where('employee_id', $employee->id)
             ->where('date', $validated['date'])
             ->first();
 
@@ -91,18 +104,39 @@ class AttendanceController extends Controller
             ])->withInput();
         }
 
-        // Auto-calculate days worked if not provided
-        if (empty($validated['days_worked']) && isset($validated['time_in']) && isset($validated['time_out'])) {
+        // Create proper datetime objects for time_in and time_out
+        $timeIn = null;
+        $timeOut = null;
+
+        if (!empty($validated['time_in'])) {
             $timeIn = Carbon::parse($validated['date'] . ' ' . $validated['time_in']);
+            $validated['time_in'] = $timeIn->toDateTimeString();
+        }
+
+        if (!empty($validated['time_out'])) {
             $timeOut = Carbon::parse($validated['date'] . ' ' . $validated['time_out']);
 
             // If time out is before time in, assume it's the next day
-            if ($timeOut < $timeIn) {
+            if ($timeIn && $timeOut->lt($timeIn)) {
                 $timeOut->addDay();
             }
 
+            $validated['time_out'] = $timeOut->toDateTimeString();
+        }
+
+        // Auto-calculate days worked if not provided or if we have time in and out
+        if (
+            (empty($validated['days_worked']) || $validated['days_worked'] < 0) &&
+            isset($timeIn) && isset($timeOut)
+        ) {
+
             $hoursWorked = $timeOut->diffInMinutes($timeIn) / 60;
-            $validated['days_worked'] = min(1, $hoursWorked / 8); // Assuming 8-hour workday
+            $validated['days_worked'] = min(1, max(0, $hoursWorked / 8)); // Assuming 8-hour workday, ensure positive
+        }
+
+        // If days_worked is still not set or is negative, default to 0
+        if (empty($validated['days_worked']) || $validated['days_worked'] < 0) {
+            $validated['days_worked'] = 0;
         }
 
         // If marked as absent, set defaults
@@ -114,6 +148,9 @@ class AttendanceController extends Controller
         }
 
         $validated['status'] = 'pending';
+
+        // Replace string employee_id with the numeric id
+        $validated['employee_id'] = $employee->id;
 
         $attendance = Attendance::create($validated);
 
@@ -156,7 +193,7 @@ class AttendanceController extends Controller
             'employee_id' => 'required|exists:employees,employee_id',
             'date' => 'required|date',
             'time_in' => 'nullable|date_format:H:i',
-            'time_out' => 'nullable|date_format:H:i|after:time_in',
+            'time_out' => 'nullable|date_format:H:i',  // Removed after:time_in validation to handle overnight shifts
             'days_worked' => 'nullable|numeric|min:0|max:1',
             'late_minutes' => 'nullable|integer|min:0',
             'is_absent' => 'boolean',
@@ -164,8 +201,17 @@ class AttendanceController extends Controller
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
+        // Find the employee record to get the numeric ID
+        $employee = Employee::where('employee_id', $validated['employee_id'])->first();
+
+        if (!$employee) {
+            return back()->withErrors([
+                'employee_id' => 'Employee not found.'
+            ])->withInput();
+        }
+
         // Check for existing attendance (excluding the current one)
-        $existingAttendance = Attendance::where('employee_id', $validated['employee_id'])
+        $existingAttendance = Attendance::where('employee_id', $employee->id)
             ->where('date', $validated['date'])
             ->where('id', '!=', $attendance->id)
             ->first();
@@ -176,18 +222,39 @@ class AttendanceController extends Controller
             ])->withInput();
         }
 
-        // Auto-calculate days worked if not provided
-        if (empty($validated['days_worked']) && isset($validated['time_in']) && isset($validated['time_out'])) {
+        // Create proper datetime objects for time_in and time_out
+        $timeIn = null;
+        $timeOut = null;
+
+        if (!empty($validated['time_in'])) {
             $timeIn = Carbon::parse($validated['date'] . ' ' . $validated['time_in']);
+            $validated['time_in'] = $timeIn->toDateTimeString();
+        }
+
+        if (!empty($validated['time_out'])) {
             $timeOut = Carbon::parse($validated['date'] . ' ' . $validated['time_out']);
 
             // If time out is before time in, assume it's the next day
-            if ($timeOut < $timeIn) {
+            if ($timeIn && $timeOut->lt($timeIn)) {
                 $timeOut->addDay();
             }
 
+            $validated['time_out'] = $timeOut->toDateTimeString();
+        }
+
+        // Auto-calculate days worked if not provided or if negative
+        if (
+            (empty($validated['days_worked']) || $validated['days_worked'] < 0) &&
+            isset($timeIn) && isset($timeOut)
+        ) {
+
             $hoursWorked = $timeOut->diffInMinutes($timeIn) / 60;
-            $validated['days_worked'] = min(1, $hoursWorked / 8); // Assuming 8-hour workday
+            $validated['days_worked'] = min(1, max(0, $hoursWorked / 8)); // Assuming 8-hour workday, ensure positive
+        }
+
+        // If days_worked is still not set or is negative, default to 0
+        if (empty($validated['days_worked']) || $validated['days_worked'] < 0) {
+            $validated['days_worked'] = 0;
         }
 
         // If marked as absent, set defaults
@@ -197,6 +264,9 @@ class AttendanceController extends Controller
             $validated['days_worked'] = 0;
             $validated['late_minutes'] = 0;
         }
+
+        // Replace string employee_id with the numeric id
+        $validated['employee_id'] = $employee->id;
 
         $attendance->update($validated);
 

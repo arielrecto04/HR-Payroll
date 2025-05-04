@@ -77,6 +77,7 @@ export default function AttendanceIndex({ attendances = { data: [] }, employees 
                         </div>
                     </div>
                     
+                    {/* Attendance Table */}
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             <div className="overflow-x-auto">
@@ -111,29 +112,35 @@ export default function AttendanceIndex({ attendances = { data: [] }, employees 
                                             filteredAttendances.map((attendance) => (
                                                 <tr key={attendance.id}>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                                                        {attendance.date}
+                                                        {attendance.date_formatted}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                                        {attendance.employee_id}
+                                                        {attendance.employee?.employee_id || '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                                        {attendance.employee?.name || '-'}
+                                                        {attendance.employee?.full_name || '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                                        {attendance.time_in || '-'}
+                                                        {attendance.time_in_formatted || '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                                        {attendance.time_out || '-'}
+                                                        {attendance.time_out_formatted || '-'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                                         <AttendanceStatus status={attendance.status} />
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                                         <Link
-                                                            href={`/attendances/${attendance.id}/edit`}
+                                                            href={route('attendances.edit', attendance.id)}
                                                             className="mr-2 text-indigo-600 hover:text-indigo-900"
                                                         >
                                                             Edit
+                                                        </Link>
+                                                        <Link
+                                                            href={route('attendances.show', attendance.id)}
+                                                            className="mr-2 text-indigo-600 hover:text-indigo-900"
+                                                        >
+                                                            View
                                                         </Link>
                                                     </td>
                                                 </tr>
