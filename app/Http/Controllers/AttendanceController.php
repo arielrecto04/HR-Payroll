@@ -124,18 +124,11 @@ class AttendanceController extends Controller
             $validated['time_out'] = $timeOut->toDateTimeString();
         }
 
-        // Auto-calculate days worked if not provided or if we have time in and out
-        if (
-            (empty($validated['days_worked']) || $validated['days_worked'] < 0) &&
-            isset($timeIn) && isset($timeOut)
-        ) {
-
-            $hoursWorked = $timeOut->diffInMinutes($timeIn) / 60;
-            $validated['days_worked'] = min(1, max(0, $hoursWorked / 8)); // Assuming 8-hour workday, ensure positive
-        }
-
-        // If days_worked is still not set or is negative, default to 0
-        if (empty($validated['days_worked']) || $validated['days_worked'] < 0) {
+        // Calculate days worked using the model method if time in and out are provided
+        if (!empty($validated['time_in']) && !empty($validated['time_out'])) {
+            $validated['days_worked'] = Attendance::calculateDaysWorked($timeIn, $timeOut);
+        } else if (empty($validated['days_worked']) || $validated['days_worked'] < 0) {
+            // Default to 0 if no valid value
             $validated['days_worked'] = 0;
         }
 
@@ -242,18 +235,11 @@ class AttendanceController extends Controller
             $validated['time_out'] = $timeOut->toDateTimeString();
         }
 
-        // Auto-calculate days worked if not provided or if negative
-        if (
-            (empty($validated['days_worked']) || $validated['days_worked'] < 0) &&
-            isset($timeIn) && isset($timeOut)
-        ) {
-
-            $hoursWorked = $timeOut->diffInMinutes($timeIn) / 60;
-            $validated['days_worked'] = min(1, max(0, $hoursWorked / 8)); // Assuming 8-hour workday, ensure positive
-        }
-
-        // If days_worked is still not set or is negative, default to 0
-        if (empty($validated['days_worked']) || $validated['days_worked'] < 0) {
+        // Calculate days worked using the model method if time in and out are provided
+        if (!empty($validated['time_in']) && !empty($validated['time_out'])) {
+            $validated['days_worked'] = Attendance::calculateDaysWorked($timeIn, $timeOut);
+        } else if (empty($validated['days_worked']) || $validated['days_worked'] < 0) {
+            // Default to 0 if no valid value
             $validated['days_worked'] = 0;
         }
 

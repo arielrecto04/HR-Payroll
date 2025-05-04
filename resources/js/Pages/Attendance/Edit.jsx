@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function AttendanceEdit({ attendance, employees }) {
-    const { data, setData, patch, processing, errors } = useForm({
+    const { data, setData, put, processing, errors } = useForm({
         employee_id: attendance.employee?.employee_id || '',
         date: attendance.date_formatted || '',
         time_in: attendance.time_in_for_input || '',
@@ -31,7 +31,7 @@ export default function AttendanceEdit({ attendance, employees }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        patch(route('attendances.update', attendance.id));
+        put(route('attendances.update', attendance.id));
     };
 
     return (

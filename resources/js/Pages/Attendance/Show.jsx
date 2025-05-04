@@ -35,7 +35,9 @@ export default function AttendanceShow({ attendance }) {
                                         href={route('attendances.approve', attendance.id)}
                                         method="patch"
                                         as="button"
+                                        type="button"
                                         className="rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
+                                        preserveState={false}
                                     >
                                         Approve
                                     </Link>
@@ -43,7 +45,9 @@ export default function AttendanceShow({ attendance }) {
                                         href={route('attendances.reject', attendance.id)}
                                         method="patch"
                                         as="button"
+                                        type="button"
                                         className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700"
+                                        preserveState={false}
                                     >
                                         Reject
                                     </Link>

@@ -202,4 +202,32 @@ class Attendance extends Model
         }
         return null;
     }
+
+    /**
+     * Calculate days worked from time in and time out
+     *
+     * @param \Carbon\Carbon|string|null $timeIn
+     * @param \Carbon\Carbon|string|null $timeOut
+     * @param float $hoursPerDay
+     * @return float
+     */
+    public static function calculateDaysWorked($timeIn, $timeOut, $hoursPerDay = 8.0)
+    {
+        if (!$timeIn || !$timeOut) {
+            return 0;
+        }
+
+        $timeInCarbon = $timeIn instanceof Carbon ? $timeIn : Carbon::parse($timeIn);
+        $timeOutCarbon = $timeOut instanceof Carbon ? $timeOut : Carbon::parse($timeOut);
+
+        // If time out is before time in, assume it's the next day
+        if ($timeOutCarbon->lt($timeInCarbon)) {
+            $timeOutCarbon->addDay();
+        }
+
+        $hoursWorked = $timeOutCarbon->diffInMinutes($timeInCarbon) / 60;
+
+        // Calculate days worked (capped at 1 day)
+        return min(1, max(0, $hoursWorked / $hoursPerDay));
+    }
 }

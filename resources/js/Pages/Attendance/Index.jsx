@@ -29,7 +29,7 @@ export default function AttendanceIndex({ attendances = { data: [] }, employees 
                             <h3 className="mb-4 text-lg font-medium text-gray-900">Record Attendance</h3>
                             <p className="mb-4 text-sm text-gray-500">Record employee time in, time out and attendance status.</p>
                             <Link
-                                href="/attendances/create"
+                                href={route('attendances.create')}
                                 className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
                                 Record Attendance
@@ -40,7 +40,7 @@ export default function AttendanceIndex({ attendances = { data: [] }, employees 
                             <h3 className="mb-4 text-lg font-medium text-gray-900">Upload Biometric Data</h3>
                             <p className="mb-4 text-sm text-gray-500">Import attendance data from biometric devices.</p>
                             <Link
-                                href="/attendances/import"
+                                href={route('attendances.import')}
                                 className="inline-flex items-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                             >
                                 Upload Data
@@ -51,7 +51,7 @@ export default function AttendanceIndex({ attendances = { data: [] }, employees 
                             <h3 className="mb-4 text-lg font-medium text-gray-900">Attendance Reports</h3>
                             <p className="mb-4 text-sm text-gray-500">Generate attendance reports for payroll processing.</p>
                             <Link
-                                href="/attendances/export"
+                                href={route('attendances.export')}
                                 className="inline-flex items-center rounded-md border border-transparent bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
                             >
                                 View Reports
@@ -138,7 +138,7 @@ export default function AttendanceIndex({ attendances = { data: [] }, employees 
                                                         </Link>
                                                         <Link
                                                             href={route('attendances.show', attendance.id)}
-                                                            className="mr-2 text-indigo-600 hover:text-indigo-900"
+                                                            className="text-indigo-600 hover:text-indigo-900"
                                                         >
                                                             View
                                                         </Link>
