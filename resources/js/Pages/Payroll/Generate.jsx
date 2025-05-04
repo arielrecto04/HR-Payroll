@@ -43,6 +43,13 @@ export default function PayrollGenerate({ employees = [] }) {
                     allowances: 0,
                     other_earnings: 0,
                     
+                    // Days worked and absences
+                    days_worked: data.period_type === 'Monthly' ? 22 : 
+                               data.period_type === 'Semi-Monthly' ? 11 : 
+                               data.period_type === 'Weekly' ? 5 : 
+                               data.period_type === 'Bi-Weekly' ? 10 : 22,
+                    absences: 0,
+                    
                     // Deductions
                     sss_contribution: 0,
                     philhealth_contribution: 0,
@@ -93,6 +100,8 @@ export default function PayrollGenerate({ employees = [] }) {
             .filter(emp => emp.selected)
             .map(employee => ({
                 employee_id: employee.id,
+                days_worked: employee.days_worked,
+                absences: employee.absences,
                 basic_pay: employee.basic_pay,
                 overtime_pay: employee.overtime_pay,
                 allowances: employee.allowances,
@@ -125,6 +134,17 @@ export default function PayrollGenerate({ employees = [] }) {
             if (field === 'overtime_hours') {
                 const hourlyRate = calculateHourlyRate(employee.basic_salary, employee.salary_type);
                 updatedEmployee.overtime_pay = numValue * hourlyRate * 1.25;
+            }
+            
+            // Adjust basic pay based on days worked and absences if those fields changed
+            if (field === 'days_worked' || field === 'absences') {
+                updatedEmployee.basic_pay = adjustBasicPayForAttendance(
+                    employee.basic_salary, 
+                    employee.salary_type,
+                    data.period_type,
+                    updatedEmployee.days_worked,
+                    updatedEmployee.absences
+                );
             }
             
             // Recalculate totals
@@ -385,6 +405,27 @@ export default function PayrollGenerate({ employees = [] }) {
         return tax;
     }
 
+    // New function to adjust basic pay based on attendance
+    function adjustBasicPayForAttendance(basicSalary, salaryType, periodType, daysWorked, absences) {
+        const fullPeriodPay = calculateBasicPay(basicSalary, salaryType, periodType);
+        
+        // Determine total expected days for the period
+        let expectedDays;
+        switch(periodType) {
+            case 'Monthly': expectedDays = 22; break;
+            case 'Semi-Monthly': expectedDays = 11; break;
+            case 'Weekly': expectedDays = 5; break;
+            case 'Bi-Weekly': expectedDays = 10; break;
+            default: expectedDays = 22;
+        }
+        
+        // Adjust for actual days worked and absences
+        const actualDays = Math.max(0, daysWorked - absences);
+        const attendanceRatio = actualDays / expectedDays;
+        
+        return fullPeriodPay * attendanceRatio;
+    }
+
     return (
         <AuthenticatedLayout
             header={
@@ -508,6 +549,12 @@ export default function PayrollGenerate({ employees = [] }) {
                                                 Employee
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                Days Worked
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                Absences
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                                 Basic Pay
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -550,6 +597,28 @@ export default function PayrollGenerate({ employees = [] }) {
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm">
                                                     <div className="font-medium text-gray-900">{employee.name}</div>
                                                     <div className="text-xs text-gray-500">{employee.position}</div>
+                                                </td>
+                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                                    <input 
+                                                        type="number" 
+                                                        min="0"
+                                                        step="0.5"
+                                                        value={employee.days_worked}
+                                                        onChange={(e) => handleHoursChange(employee.id, 'days_worked', e.target.value)}
+                                                        className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        disabled={!employee.selected}
+                                                    />
+                                                </td>
+                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                                    <input 
+                                                        type="number" 
+                                                        min="0"
+                                                        step="0.5"
+                                                        value={employee.absences}
+                                                        onChange={(e) => handleHoursChange(employee.id, 'absences', e.target.value)}
+                                                        className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        disabled={!employee.selected}
+                                                    />
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                                     ₱{employee.basic_pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
