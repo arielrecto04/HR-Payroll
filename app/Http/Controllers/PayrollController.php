@@ -518,4 +518,19 @@ class PayrollController extends Controller
             'payroll' => $payroll,
         ]);
     }
+
+    /**
+     * Download the payslip as a PDF.
+     */
+    public function downloadPdf(Payroll $payroll)
+    {
+        $payroll->load('employee');
+
+        $pdf = \PDF::loadView('pdf.payslip', ['payroll' => $payroll]);
+
+        $filename = 'payslip_' . $payroll->employee->employee_id . '_' . $payroll->payroll_period . '.pdf';
+        $filename = str_replace(' ', '_', $filename);
+
+        return $pdf->download($filename);
+    }
 }

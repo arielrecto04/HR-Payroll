@@ -79,8 +79,6 @@ Route::middleware('auth')->group(function () {
     Route::get('payroll', [PayrollController::class, 'index'])->name('payroll.index');
     Route::get('payroll/generate', [PayrollController::class, 'create'])->name('payroll.create');
     Route::post('payroll', [PayrollController::class, 'store'])->name('payroll.store');
-    Route::get('payroll/reports', [PayrollController::class, 'reports'])->name('payroll.reports');
-    Route::get('payroll/remittances', [PayrollController::class, 'remittances'])->name('payroll.remittances');
     Route::get('payroll/{payroll}/view', [PayrollController::class, 'show'])->name('payroll.show');
     Route::get('payroll/{payroll}/edit', [PayrollController::class, 'edit'])->name('payroll.edit');
     Route::put('payroll/{payroll}', [PayrollController::class, 'update'])->name('payroll.update');
@@ -88,6 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('payroll/{payroll}/approve', [PayrollController::class, 'approve'])->name('payroll.approve');
     Route::patch('payroll/{payroll}/paid', [PayrollController::class, 'markAsPaid'])->name('payroll.paid');
     Route::get('payroll/{payroll}/payslips', [PayrollController::class, 'payslips'])->name('payroll.payslips');
+    Route::get('payroll/{payroll}/download-pdf', [PayrollController::class, 'downloadPdf'])->name('payroll.download-pdf');
     Route::post('payroll/batch', [PayrollController::class, 'generateBatch'])->name('payroll.batch');
 });
 
