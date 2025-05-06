@@ -82,11 +82,15 @@ export default function PayrollShow({ payroll }) {
                                 <dl>
                                     <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                         <dt className="text-sm font-medium text-gray-500">Employee Name</dt>
-                                        <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{payroll?.employee?.name || '-'}</dd>
+                                        <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                                            {payroll?.employee?.first_name ? 
+                                                `${payroll.employee.first_name} ${payroll.employee.middle_name || ''} ${payroll.employee.last_name}` 
+                                                : '-'}
+                                        </dd>
                                     </div>
                                     <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                         <dt className="text-sm font-medium text-gray-500">Employee ID</dt>
-                                        <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{payroll?.employee?.id || '-'}</dd>
+                                        <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{payroll?.employee?.employee_id || '-'}</dd>
                                     </div>
                                     <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                         <dt className="text-sm font-medium text-gray-500">Position</dt>
@@ -95,7 +99,7 @@ export default function PayrollShow({ payroll }) {
                                     <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                         <dt className="text-sm font-medium text-gray-500">Basic Salary</dt>
                                         <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                            ₱{payroll?.basic_salary?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+                                            ₱{payroll?.monthly_salary?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                                         </dd>
                                     </div>
                                 </dl>
