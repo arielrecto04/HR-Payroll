@@ -93,7 +93,7 @@ export default function Payslips({ payroll }) {
                                     <table className="min-w-full">
                                         <tbody>
                                             <tr className="border-b">
-                                                <th className="text-left py-2 text-sm font-medium text-gray-500">Semi-Monthly Salary</th>
+                                                <th className="text-left py-2 text-sm font-medium text-gray-500">Basic Salary</th>
                                                 <td className="text-right py-2 text-sm text-gray-900">{formatCurrency(payroll.regular_earnings)}</td>
                                             </tr>
                                             <tr className="border-b">
