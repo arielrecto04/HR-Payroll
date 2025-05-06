@@ -8,7 +8,6 @@ import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function PayrollGenerate({ employees = [] }) {
     const { data, setData, post, processing, errors } = useForm({
-        payroll_period: '',
         period_type: 'Semi-Monthly',
         start_date: '',
         end_date: '',
@@ -522,20 +521,6 @@ export default function PayrollGenerate({ employees = [] }) {
                             <h3 className="mb-4 text-lg font-medium">Payroll Information</h3>
                             
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                <div>
-                                    <InputLabel htmlFor="payroll_period" value="Payroll Period Name" />
-                                    <TextInput
-                                        id="payroll_period"
-                                        type="text"
-                                        name="payroll_period"
-                                        value={data.payroll_period}
-                                        className="mt-1 block w-full"
-                                        onChange={(e) => setData('payroll_period', e.target.value)}
-                                        required
-                                    />
-                                    <InputError message={errors.payroll_period} className="mt-2" />
-                                </div>
-                                
                                 <div>
                                     <InputLabel htmlFor="period_type" value="Period Type" />
                                     <select

@@ -38,28 +38,6 @@ export default function PayrollIndex({ payrollRuns = [] }) {
                                 Generate Payroll
                             </Link>
                         </div>
-                        
-                        <div className="rounded-lg bg-white p-6 shadow">
-                            <h3 className="mb-4 text-lg font-medium text-gray-900">Payroll Reports</h3>
-                            <p className="mb-4 text-sm text-gray-500">Generate payroll reports and tax statements.</p>
-                            <Link
-                                href="/payroll/reports"
-                                className="inline-flex items-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                            >
-                                View Reports
-                            </Link>
-                        </div>
-                        
-                        <div className="rounded-lg bg-white p-6 shadow">
-                            <h3 className="mb-4 text-lg font-medium text-gray-900">Government Remittances</h3>
-                            <p className="mb-4 text-sm text-gray-500">Generate SSS, PhilHealth, Pag-IBIG, and tax remittances.</p>
-                            <Link
-                                href="/payroll/remittances"
-                                className="inline-flex items-center rounded-md border border-transparent bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-                            >
-                                Manage Remittances
-                            </Link>
-                        </div>
                     </div>
                     
                     <div className="mb-6 flex flex-col items-start space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
@@ -95,70 +73,13 @@ export default function PayrollIndex({ payrollRuns = [] }) {
                                                 Actions
                                             </th>
                                             <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Emp ID
+                                                Employee
                                             </th>
                                             <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Emp Name & Position
+                                                Gross Pay
                                             </th>
                                             <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Attendance
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Monthly Salary
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Semi-Monthly
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Daily Rate
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Hourly Rate
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Minute Rate
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Regular OT
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Rest Day
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Special Holiday
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Special Holiday Rest Day
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Legal Holiday
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Night Differential
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                SSS Contribution
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                PhilHealth Contribution
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Pag-IBIG Contribution
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Tax
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Loans
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Other Deductions
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Allowances
-                                            </th>
-                                            <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Other Additions
+                                                Net Pay
                                             </th>
                                             <th scope="col" className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                                 Status
@@ -201,70 +122,17 @@ export default function PayrollIndex({ payrollRuns = [] }) {
                                                         </div>
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.employee?.id || '-'}
+                                                        <div>
+                                                            <div className="font-medium text-gray-900">{payroll.employee?.name || '-'}</div>
+                                                            <div className="text-xs text-gray-500">{payroll.employee?.position || ''}</div>
+                                                            <div className="text-xs text-gray-500">ID: {payroll.employee?.id || '-'}</div>
+                                                        </div>
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.employee?.name || '-'} {payroll.employee?.position ? `(${payroll.employee.position})` : ''}
+                                                        ₱{calculateGrossPay(payroll).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.days_worked || 0}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.employee_salary?.monthly_rate || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.employee_salary?.semi_monthly_rate || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.employee_salary?.daily_rate || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.employee_salary?.hourly_rate || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.employee_salary?.minute_rate || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.overtime_details?.regular_overtime || 0}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.overtime_details?.rest_day || 0}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.overtime_details?.special_holiday || 0}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.overtime_details?.special_holiday_rest_day || 0}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.overtime_details?.legal_holiday || 0}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {payroll.overtime_details?.night_differential || 0}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.sss_contribution || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.philhealth_contribution || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.pagibig_contribution || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.tax_withheld || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.loan_deductions || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.other_deductions || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.allowances || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{(payroll.other_earnings || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        ₱{calculateNetPay(payroll).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                                         <PayrollStatus status={payroll.status} />
@@ -273,7 +141,7 @@ export default function PayrollIndex({ payrollRuns = [] }) {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="24" className="px-3 py-4 text-center text-sm text-gray-500">
+                                                <td colSpan="5" className="px-3 py-4 text-center text-sm text-gray-500">
                                                     No payroll records found
                                                 </td>
                                             </tr>
@@ -314,4 +182,39 @@ function PayrollStatus({ status }) {
             {status}
         </span>
     );
+}
+
+function calculateGrossPay(payroll) {
+    // Basic salary calculation
+    const basicSalary = payroll.employee_salary?.semi_monthly_rate || 0;
+    
+    // Overtime and other additions
+    const overtimeEarnings = 
+        (payroll.overtime_details?.regular_overtime || 0) + 
+        (payroll.overtime_details?.rest_day || 0) + 
+        (payroll.overtime_details?.special_holiday || 0) + 
+        (payroll.overtime_details?.special_holiday_rest_day || 0) + 
+        (payroll.overtime_details?.legal_holiday || 0) + 
+        (payroll.overtime_details?.night_differential || 0);
+    
+    // Allowances and other earnings
+    const additions = (payroll.allowances || 0) + (payroll.other_earnings || 0);
+    
+    return basicSalary + overtimeEarnings + additions;
+}
+
+function calculateNetPay(payroll) {
+    const grossPay = calculateGrossPay(payroll);
+    
+    // Statutory deductions
+    const statutoryDeductions = 
+        (payroll.sss_contribution || 0) + 
+        (payroll.philhealth_contribution || 0) + 
+        (payroll.pagibig_contribution || 0) + 
+        (payroll.tax_withheld || 0);
+    
+    // Other deductions
+    const otherDeductions = (payroll.loan_deductions || 0) + (payroll.other_deductions || 0);
+    
+    return grossPay - statutoryDeductions - otherDeductions;
 } 
