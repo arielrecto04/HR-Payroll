@@ -8,6 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function PayrollGenerate({ employees = [] }) {
     const { data, setData, post, processing, errors } = useForm({
+        payroll_period: '',
         period_type: 'Semi-Monthly',
         start_date: '',
         end_date: '',
@@ -27,7 +28,7 @@ export default function PayrollGenerate({ employees = [] }) {
                 
                 return {
                     id: employee.id,
-                    employee_id: employee.employee_id,
+                    employee_id: employee.id,
                     name: `${employee.last_name}, ${employee.first_name} ${employee.middle_name || ''}`,
                     basic_salary: employee.basic_salary,
                     salary_type: employee.salary_type,
@@ -100,6 +101,8 @@ export default function PayrollGenerate({ employees = [] }) {
     };
     
     const handleEmployeeSelect = (employeeId) => {
+        console.log('Selecting employee with ID:', employeeId);
+        
         const updatedEmployees = payrollEmployees.map(employee => 
             employee.id === employeeId 
                 ? { ...employee, selected: !employee.selected } 
@@ -108,6 +111,10 @@ export default function PayrollGenerate({ employees = [] }) {
         
         setPayrollEmployees(updatedEmployees);
         setSelectAll(updatedEmployees.every(emp => emp.selected));
+        
+        const selectedCount = updatedEmployees.filter(emp => emp.selected).length;
+        console.log(`${selectedCount} employees selected`);
+        
         updateSelectedEmployees(updatedEmployees);
     };
     
@@ -146,6 +153,9 @@ export default function PayrollGenerate({ employees = [] }) {
                 total_deductions: employee.total_deductions,
                 net_pay: employee.net_pay
             }));
+        
+        console.log('Updating selected employees:', selectedEmployees);
+        console.log('Selected employee IDs:', selectedEmployees.map(emp => emp.employee_id));
         
         setData('selected_employees', selectedEmployees);
     };
@@ -249,8 +259,86 @@ export default function PayrollGenerate({ employees = [] }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('payroll.store'));
+        
+        // Prepare data for controller - fix the data binding issue
+        if (data.selected_employees.length === 0) {
+            alert('Please select at least one employee');
+            return;
+        }
+        
+        // Ensure payroll_period is always provided
+        const payrollPeriod = data.payroll_period || generatePayrollPeriodName();
+        
+        console.log('Selected employees:', data.selected_employees);
+        
+        // Check if we're generating for a single employee or batch
+        if (data.selected_employees.length === 1) {
+            // Single employee payroll
+            const employeeData = data.selected_employees[0];
+            const payload = {
+                employee_id: employeeData.employee_id,
+                payroll_period: payrollPeriod,
+                start_date: data.start_date,
+                end_date: data.end_date,
+                payment_date: data.payment_date,
+                remarks: data.description,
+                selected_employees: [employeeData] // Include the full employee data for processing
+            };
+            
+            console.log('Submitting single payroll:', payload);
+            post(route('payroll.store'), payload, {
+                onError: (errors) => {
+                    console.error('Payroll submission errors:', errors);
+                    alert('Error generating payroll: ' + Object.values(errors).join(', '));
+                }
+            });
+        } else {
+            // Batch payroll generation
+            const payload = {
+                payroll_period: payrollPeriod,
+                start_date: data.start_date,
+                end_date: data.end_date,
+                payment_date: data.payment_date,
+                remarks: data.description,
+                selected_employees: data.selected_employees // Pass all selected employees with their data
+            };
+            
+            console.log('Submitting batch payroll:', payload);
+            post(route('payroll.batch'), payload, {
+                onError: (errors) => {
+                    console.error('Batch payroll submission errors:', errors);
+                    alert('Error generating batch payroll: ' + Object.values(errors).join(', '));
+                }
+            });
+        }
     };
+    
+    // Helper function to generate a payroll period name if not provided
+    function generatePayrollPeriodName() {
+        const startDate = new Date(data.start_date);
+        const endDate = new Date(data.end_date);
+        
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            // If dates are invalid, use current date for the period name
+            const now = new Date();
+            const currentMonth = now.toLocaleString('default', { month: 'long' });
+            const currentYear = now.getFullYear();
+            
+            if (data.period_type === 'Semi-Monthly') {
+                const day = now.getDate();
+                if (day <= 15) {
+                    return `${currentMonth} 1-15, ${currentYear}`;
+                } else {
+                    return `${currentMonth} 16-${new Date(currentYear, now.getMonth() + 1, 0).getDate()}, ${currentYear}`;
+                }
+            }
+            
+            return `${currentMonth} ${currentYear} ${data.period_type}`;
+        }
+        
+        const formatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+        return `${startDate.toLocaleDateString('en-US', formatOptions)} to ${endDate.toLocaleDateString('en-US', formatOptions)}`;
+    }
     
     // Helper functions for Philippine payroll calculations
     function calculateBasicPay(basicSalary, salaryType, periodType) {
@@ -521,6 +609,20 @@ export default function PayrollGenerate({ employees = [] }) {
                             <h3 className="mb-4 text-lg font-medium">Payroll Information</h3>
                             
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div>
+                                    <InputLabel htmlFor="payroll_period" value="Payroll Period Name (Optional)" />
+                                    <TextInput
+                                        id="payroll_period"
+                                        type="text"
+                                        name="payroll_period"
+                                        value={data.payroll_period}
+                                        className="mt-1 block w-full"
+                                        onChange={(e) => setData('payroll_period', e.target.value)}
+                                        placeholder="Will be auto-generated if left blank"
+                                    />
+                                    <InputError message={errors.payroll_period} className="mt-2" />
+                                </div>
+                                
                                 <div>
                                     <InputLabel htmlFor="period_type" value="Period Type" />
                                     <select

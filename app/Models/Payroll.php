@@ -21,7 +21,7 @@ class Payroll extends Model
         'start_date',
         'end_date',
         'payment_date',
-        'basic_salary',
+        'monthly_salary',
         'regular_earnings',
         'overtime_earnings',
         'holiday_pay',
@@ -55,7 +55,7 @@ class Payroll extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'payment_date' => 'date',
-        'basic_salary' => 'decimal:2',
+        'monthly_salary' => 'decimal:2',
         'regular_earnings' => 'decimal:2',
         'overtime_earnings' => 'decimal:2',
         'holiday_pay' => 'decimal:2',
@@ -84,6 +84,15 @@ class Payroll extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    /**
+     * Get the employee's current salary.
+     */
+    public function employeeSalary()
+    {
+        return $this->belongsTo(EmployeeSalary::class, 'employee_id', 'employee_id')
+            ->where('is_active', true);
     }
 
     /**
@@ -117,6 +126,19 @@ class Payroll extends Model
      */
     public function calculateTotals()
     {
+        // Set defaults for any null values
+        $this->regular_earnings = $this->regular_earnings ?? 0;
+        $this->overtime_earnings = $this->overtime_earnings ?? 0;
+        $this->holiday_pay = $this->holiday_pay ?? 0;
+        $this->allowances = $this->allowances ?? 0;
+        $this->other_earnings = $this->other_earnings ?? 0;
+        $this->sss_contribution = $this->sss_contribution ?? 0;
+        $this->philhealth_contribution = $this->philhealth_contribution ?? 0;
+        $this->pagibig_contribution = $this->pagibig_contribution ?? 0;
+        $this->tax_withheld = $this->tax_withheld ?? 0;
+        $this->loan_deductions = $this->loan_deductions ?? 0;
+        $this->other_deductions = $this->other_deductions ?? 0;
+
         // Calculate total earnings
         $this->gross_pay = $this->regular_earnings +
             $this->overtime_earnings +
@@ -145,64 +167,99 @@ class Payroll extends Model
      */
     public function process()
     {
-        if ($this->status !== 'draft') {
-            return $this;
-        }
+        try {
+            \Log::info('Processing payroll ID: ' . $this->id);
 
-        $employee = $this->employee;
-        $salary = $employee->currentSalary;
-        $deductionSetting = DeductionSetting::where('employee_id', $this->employee_id)
-            ->where('is_active', true)
-            ->first();
-
-        if (!$salary) {
-            return $this;
-        }
-
-        // Set basic salary
-        $this->basic_salary = $salary->monthly_rate;
-
-        // Calculate days worked and earnings
-        $attendances = $this->attendances()->get();
-        $this->days_worked = $attendances->sum('days_worked');
-        $this->regular_earnings = $this->days_worked * $salary->daily_rate;
-
-        // Process overtime
-        $overtimeRecords = $this->overtimeRecords()->get();
-        $this->overtime_hours = $overtimeRecords->sum('hours');
-        $this->overtime_earnings = $overtimeRecords->sum(function ($record) use ($salary) {
-            return $record->hours * $salary->hourly_rate * $record->rate_multiplier;
-        });
-
-        // Store details as JSON
-        $this->attendance_details = $attendances->toArray();
-        $this->overtime_details = $overtimeRecords->toArray();
-
-        // Process deductions if settings exist
-        if ($deductionSetting) {
-            $this->sss_contribution = $deductionSetting->sss_contribution;
-            $this->philhealth_contribution = $deductionSetting->philhealth_contribution;
-            $this->pagibig_contribution = $deductionSetting->pagibig_contribution;
-            $this->tax_withheld = $deductionSetting->calculateEstimatedTax($this->gross_pay);
-            $this->allowances = $deductionSetting->allowances;
-
-            // Process loans if any
-            if (!empty($deductionSetting->loans)) {
-                $this->loan_deductions = collect($deductionSetting->loans)->sum('amount');
-                $this->deduction_details = [
-                    'loans' => $deductionSetting->loans,
-                    'other' => $deductionSetting->other_deductions
-                ];
+            if ($this->status !== 'draft') {
+                \Log::warning('Cannot process payroll that is not in draft status: ' . $this->status);
+                return $this;
             }
+
+            // Get the employee relationship
+            $employee = $this->employee;
+            if (!$employee) {
+                \Log::error('Employee not found for payroll ID: ' . $this->id);
+                throw new \Exception('Employee not found for payroll ID: ' . $this->id);
+            }
+            \Log::info('Found employee: ' . $employee->id);
+
+            // Get the employee's current salary
+            $salary = $this->employeeSalary;
+            if (!$salary) {
+                \Log::warning('No salary record found for employee ID: ' . $employee->id);
+                // Continue processing with default values instead of returning
+                $this->monthly_salary = 0;
+            } else {
+                // Set monthly salary
+                $this->monthly_salary = $salary->monthly_rate ?? 0;
+                \Log::info('Set monthly salary: ' . $this->monthly_salary);
+            }
+
+            $deductionSetting = DeductionSetting::where('employee_id', $this->employee_id)
+                ->where('is_active', true)
+                ->first();
+
+            // Calculate days worked and earnings if employee has a salary
+            if ($salary) {
+                // Get attendance records
+                $attendances = $this->attendances()->get();
+                $this->days_worked = $attendances->sum('days_worked') ?: 0;
+                $this->regular_earnings = $this->days_worked * ($salary->daily_rate ?? 0);
+                \Log::info('Days worked: ' . $this->days_worked . ', Regular earnings: ' . $this->regular_earnings);
+
+                // Process overtime
+                $overtimeRecords = $this->overtimeRecords()->get();
+                $this->overtime_hours = $overtimeRecords->sum('hours') ?: 0;
+                $this->overtime_earnings = $overtimeRecords->sum(function ($record) use ($salary) {
+                    return $record->hours * ($salary->hourly_rate ?? 0) * ($record->rate_multiplier ?? 1);
+                });
+                \Log::info('Overtime hours: ' . $this->overtime_hours . ', Overtime earnings: ' . $this->overtime_earnings);
+
+                // Store details as JSON
+                $this->attendance_details = $attendances->toArray();
+                $this->overtime_details = $overtimeRecords->toArray();
+            }
+
+            // Process deductions if settings exist
+            if ($deductionSetting) {
+                \Log::info('Processing deductions for employee ID: ' . $this->employee_id);
+                $this->sss_contribution = $deductionSetting->sss_contribution ?? 0;
+                $this->philhealth_contribution = $deductionSetting->philhealth_contribution ?? 0;
+                $this->pagibig_contribution = $deductionSetting->pagibig_contribution ?? 0;
+
+                // Calculate estimated tax based on gross pay
+                $grossPayForTax = $this->regular_earnings + $this->overtime_earnings + ($this->allowances ?? 0);
+                $this->tax_withheld = $deductionSetting->calculateEstimatedTax ?
+                    $deductionSetting->calculateEstimatedTax($grossPayForTax) : 0;
+
+                $this->allowances = $deductionSetting->allowances ?? 0;
+
+                // Process loans if any
+                if (!empty($deductionSetting->loans)) {
+                    $this->loan_deductions = collect($deductionSetting->loans)->sum('amount');
+                    $this->deduction_details = [
+                        'loans' => $deductionSetting->loans,
+                        'other' => $deductionSetting->other_deductions
+                    ];
+                }
+            } else {
+                \Log::warning('No deduction settings found for employee ID: ' . $this->employee_id);
+            }
+
+            // Calculate final totals
+            $this->calculateTotals();
+            \Log::info('Calculated totals - Gross pay: ' . $this->gross_pay . ', Net pay: ' . $this->net_pay);
+
+            // Update status
+            $this->status = 'processing';
+            \Log::info('Payroll processing completed for ID: ' . $this->id);
+
+            return $this;
+        } catch (\Exception $e) {
+            \Log::error('Error processing payroll: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            throw $e; // Re-throw to be caught by the controller
         }
-
-        // Calculate final totals
-        $this->calculateTotals();
-
-        // Update status
-        $this->status = 'processing';
-
-        return $this;
     }
 
     /**

@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->date('payment_date');
 
             // Base Salary
-            $table->decimal('basic_salary', 15, 2);
+            $table->decimal('monthly_salary', 15, 2);
 
             // Earnings
             $table->decimal('regular_earnings', 15, 2)->default(0);
