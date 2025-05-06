@@ -38,8 +38,25 @@ export default function PayrollGenerate({ employees = [] }) {
                     
                     // Earnings
                     basic_pay: basicPay,
+                    
+                    // Different overtime types
+                    regular_overtime_hours: 0,
+                    regular_overtime_pay: 0,
+                    rest_day_hours: 0,
+                    rest_day_pay: 0,
+                    special_holiday_hours: 0,
+                    special_holiday_pay: 0,
+                    special_holiday_rest_day_hours: 0,
+                    special_holiday_rest_day_pay: 0,
+                    legal_holiday_hours: 0,
+                    legal_holiday_pay: 0,
+                    night_differential_hours: 0,
+                    night_differential_pay: 0,
+                    
+                    // Total overtime pay (sum of all types)
                     overtime_hours: 0,
                     overtime_pay: 0,
+                    
                     allowances: 0,
                     other_earnings: 0,
                     
@@ -104,6 +121,19 @@ export default function PayrollGenerate({ employees = [] }) {
                 absences: employee.absences,
                 basic_pay: employee.basic_pay,
                 overtime_pay: employee.overtime_pay,
+                // Include all overtime types
+                regular_overtime_hours: employee.regular_overtime_hours,
+                regular_overtime_pay: employee.regular_overtime_pay,
+                rest_day_hours: employee.rest_day_hours,
+                rest_day_pay: employee.rest_day_pay,
+                special_holiday_hours: employee.special_holiday_hours,
+                special_holiday_pay: employee.special_holiday_pay,
+                special_holiday_rest_day_hours: employee.special_holiday_rest_day_hours,
+                special_holiday_rest_day_pay: employee.special_holiday_rest_day_pay,
+                legal_holiday_hours: employee.legal_holiday_hours,
+                legal_holiday_pay: employee.legal_holiday_pay,
+                night_differential_hours: employee.night_differential_hours,
+                night_differential_pay: employee.night_differential_pay,
                 allowances: employee.allowances,
                 other_earnings: employee.other_earnings,
                 sss_contribution: employee.sss_contribution,
@@ -130,11 +160,35 @@ export default function PayrollGenerate({ employees = [] }) {
             const updatedEmployee = { ...employee };
             updatedEmployee[field] = numValue;
             
-            // Calculate overtime pay (assuming 1.25x regular rate for simplicity)
-            if (field === 'overtime_hours') {
-                const hourlyRate = calculateHourlyRate(employee.basic_salary, employee.salary_type);
-                updatedEmployee.overtime_pay = numValue * hourlyRate * 1.25;
+            // Get the hourly rate for this employee
+            const hourlyRate = calculateHourlyRate(employee.basic_salary, employee.salary_type);
+            
+            // Handle different overtime types
+            if (field === 'regular_overtime_hours') {
+                updatedEmployee.regular_overtime_pay = calculateOvertimePay(numValue, hourlyRate, 'regular_overtime');
+            } else if (field === 'rest_day_hours') {
+                updatedEmployee.rest_day_pay = calculateOvertimePay(numValue, hourlyRate, 'rest_day');
+            } else if (field === 'special_holiday_hours') {
+                updatedEmployee.special_holiday_pay = calculateOvertimePay(numValue, hourlyRate, 'special_holiday');
+            } else if (field === 'special_holiday_rest_day_hours') {
+                updatedEmployee.special_holiday_rest_day_pay = calculateOvertimePay(numValue, hourlyRate, 'special_holiday_rest_day');
+            } else if (field === 'legal_holiday_hours') {
+                updatedEmployee.legal_holiday_pay = calculateOvertimePay(numValue, hourlyRate, 'legal_holiday');
+            } else if (field === 'night_differential_hours') {
+                updatedEmployee.night_differential_pay = calculateOvertimePay(numValue, hourlyRate, 'night_differential');
+            } else if (field === 'overtime_hours') {
+                // For backward compatibility with the old single overtime field
+                updatedEmployee.overtime_pay = calculateOvertimePay(numValue, hourlyRate, 'regular_overtime');
             }
+            
+            // Calculate total overtime hours and pay
+            updatedEmployee.overtime_hours = 
+                parseFloat(updatedEmployee.regular_overtime_hours || 0) +
+                parseFloat(updatedEmployee.rest_day_hours || 0) +
+                parseFloat(updatedEmployee.special_holiday_hours || 0) +
+                parseFloat(updatedEmployee.special_holiday_rest_day_hours || 0) +
+                parseFloat(updatedEmployee.legal_holiday_hours || 0) +
+                parseFloat(updatedEmployee.night_differential_hours || 0);
             
             // Adjust basic pay based on days worked and absences if those fields changed
             if (field === 'days_worked' || field === 'absences') {
@@ -255,9 +309,34 @@ export default function PayrollGenerate({ employees = [] }) {
         }
     }
     
+    // New function to calculate overtime pay based on type
+    function calculateOvertimePay(overtimeHours, hourlyRate, overtimeType) {
+        // Rate multipliers as per Philippine Labor Code
+        const multipliers = {
+            'regular_overtime': 1.25, // 25% premium
+            'rest_day': 1.30, // 30% premium
+            'special_holiday': 1.30, // 30% premium
+            'special_holiday_rest_day': 1.50, // 50% premium
+            'legal_holiday': 2.00, // 100% premium (double pay)
+            'night_differential': 1.10, // 10% premium
+        };
+        
+        const rateMultiplier = multipliers[overtimeType] || 1.25; // Default to regular OT if type not found
+        return overtimeHours * hourlyRate * rateMultiplier;
+    }
+    
     function calculateGrossPay(employee) {
+        // Calculate total overtime pay as sum of all overtime types
+        const totalOvertimePay = 
+            parseFloat(employee.regular_overtime_pay || 0) +
+            parseFloat(employee.rest_day_pay || 0) +
+            parseFloat(employee.special_holiday_pay || 0) +
+            parseFloat(employee.special_holiday_rest_day_pay || 0) +
+            parseFloat(employee.legal_holiday_pay || 0) +
+            parseFloat(employee.night_differential_pay || 0);
+        
         return parseFloat(employee.basic_pay || 0) + 
-               parseFloat(employee.overtime_pay || 0) + 
+               totalOvertimePay + 
                parseFloat(employee.allowances || 0) + 
                parseFloat(employee.other_earnings || 0);
     }
@@ -531,7 +610,8 @@ export default function PayrollGenerate({ employees = [] }) {
                                 </div>
                             </div>
                         </div>
-                        
+
+                        {/* Employee Table */}
                         <div className="mb-6 overflow-hidden bg-white shadow-sm sm:rounded-lg">
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
@@ -558,10 +638,22 @@ export default function PayrollGenerate({ employees = [] }) {
                                                 Basic Pay
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Overtime Hours
+                                                Regular OT
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                                Overtime Pay
+                                                Rest Day OT
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                Special Holiday
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                Spec. Holiday Rest Day
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                Legal Holiday
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                Night Diff.
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                                 Allowances
@@ -628,14 +720,90 @@ export default function PayrollGenerate({ employees = [] }) {
                                                         type="number" 
                                                         min="0"
                                                         step="0.5"
-                                                        value={employee.overtime_hours}
-                                                        onChange={(e) => handleHoursChange(employee.id, 'overtime_hours', e.target.value)}
-                                                        className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        value={employee.regular_overtime_hours}
+                                                        onChange={(e) => handleHoursChange(employee.id, 'regular_overtime_hours', e.target.value)}
+                                                        className="w-16 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                         disabled={!employee.selected}
+                                                        title="Regular Overtime Hours"
                                                     />
+                                                    <div className="mt-1 text-xs">
+                                                        ₱{employee.regular_overtime_pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                                    ₱{employee.overtime_pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    <input 
+                                                        type="number" 
+                                                        min="0"
+                                                        step="0.5"
+                                                        value={employee.rest_day_hours}
+                                                        onChange={(e) => handleHoursChange(employee.id, 'rest_day_hours', e.target.value)}
+                                                        className="w-16 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        disabled={!employee.selected}
+                                                        title="Rest Day Overtime Hours"
+                                                    />
+                                                    <div className="mt-1 text-xs">
+                                                        ₱{employee.rest_day_pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
+                                                </td>
+                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                                    <input 
+                                                        type="number" 
+                                                        min="0"
+                                                        step="0.5"
+                                                        value={employee.special_holiday_hours}
+                                                        onChange={(e) => handleHoursChange(employee.id, 'special_holiday_hours', e.target.value)}
+                                                        className="w-16 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        disabled={!employee.selected}
+                                                        title="Special Holiday Overtime Hours"
+                                                    />
+                                                    <div className="mt-1 text-xs">
+                                                        ₱{employee.special_holiday_pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
+                                                </td>
+                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                                    <input 
+                                                        type="number" 
+                                                        min="0"
+                                                        step="0.5"
+                                                        value={employee.special_holiday_rest_day_hours}
+                                                        onChange={(e) => handleHoursChange(employee.id, 'special_holiday_rest_day_hours', e.target.value)}
+                                                        className="w-16 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        disabled={!employee.selected}
+                                                        title="Special Holiday Rest Day Hours"
+                                                    />
+                                                    <div className="mt-1 text-xs">
+                                                        ₱{employee.special_holiday_rest_day_pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
+                                                </td>
+                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                                    <input 
+                                                        type="number" 
+                                                        min="0"
+                                                        step="0.5"
+                                                        value={employee.legal_holiday_hours}
+                                                        onChange={(e) => handleHoursChange(employee.id, 'legal_holiday_hours', e.target.value)}
+                                                        className="w-16 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        disabled={!employee.selected}
+                                                        title="Legal Holiday Hours"
+                                                    />
+                                                    <div className="mt-1 text-xs">
+                                                        ₱{employee.legal_holiday_pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
+                                                </td>
+                                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                                    <input 
+                                                        type="number" 
+                                                        min="0"
+                                                        step="0.5"
+                                                        value={employee.night_differential_hours}
+                                                        onChange={(e) => handleHoursChange(employee.id, 'night_differential_hours', e.target.value)}
+                                                        className="w-16 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        disabled={!employee.selected}
+                                                        title="Night Differential Hours"
+                                                    />
+                                                    <div className="mt-1 text-xs">
+                                                        ₱{employee.night_differential_pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                                     <input 
