@@ -6,12 +6,11 @@ export default function PayrollIndex({ payrollRuns = [] }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [periodFilter, setPeriodFilter] = useState('');
     
-    // Check if payrollRuns is a paginator object with data property or an array
     const payrollData = Array.isArray(payrollRuns) ? payrollRuns : (payrollRuns.data || []);
     
     const filteredPayrollRuns = payrollData.filter(payroll => 
-        (payroll.payroll_period.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         payroll.status.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (payroll.payroll_period?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         payroll.status?.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (periodFilter ? payroll.period_type === periodFilter : true)
     );
 
@@ -123,19 +122,21 @@ export default function PayrollIndex({ payrollRuns = [] }) {
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                                         <div>
-                                                            <div className="font-medium text-gray-900">{payroll.employee?.name || '-'}</div>
-                                                            <div className="text-xs text-gray-500">{payroll.employee?.position || ''}</div>
-                                                            <div className="text-xs text-gray-500">ID: {payroll.employee?.id || '-'}</div>
+                                                            <div className="font-medium text-gray-900">
+                                                                {payroll.employee?.first_name} {payroll.employee?.middle_name} {payroll.employee?.last_name}
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">{payroll.employee?.position}</div>
+                                                            <div className="text-xs text-gray-500">ID: {payroll.employee?.employee_id}</div>
                                                         </div>
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{calculateGrossPay(payroll).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        ₱{payroll.gross_pay?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        ₱{calculateNetPay(payroll).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        ₱{payroll.net_pay?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                                                     </td>
                                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        <PayrollStatus status={payroll.status} />
+                                                        <PayrollStatus status={payroll.status || 'draft'} />
                                                     </td>
                                                 </tr>
                                             ))
@@ -217,4 +218,4 @@ function calculateNetPay(payroll) {
     const otherDeductions = (payroll.loan_deductions || 0) + (payroll.other_deductions || 0);
     
     return grossPay - statutoryDeductions - otherDeductions;
-} 
+}

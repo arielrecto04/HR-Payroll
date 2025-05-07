@@ -79,6 +79,10 @@ export default function Payslips({ payroll }) {
                                                 <td className="text-sm text-gray-900 py-2">{payroll.days_worked}</td>
                                             </tr>
                                             <tr className="border-b">
+                                                <th className="text-left py-2 text-sm font-medium text-gray-500">Absences:</th>
+                                                <td className="text-sm text-gray-900 py-2">{payroll.absences}</td>
+                                            </tr>
+                                            <tr className="border-b">
                                                 <th className="text-left py-2 text-sm font-medium text-gray-500">Overtime Hours:</th>
                                                 <td className="text-sm text-gray-900 py-2">{payroll.overtime_hours}</td>
                                             </tr>
@@ -225,4 +229,4 @@ const formatDate = (dateString, options = {}) => {
     };
     
     return date.toLocaleDateString('en-US', { ...defaultOptions, ...options });
-}; 
+};

@@ -101,6 +101,10 @@ const PayrollInfoBox = ({ payroll }) => {
                             <span className="text-sm font-medium">{payroll?.days_worked || '0'}</span>
                         </div>
                         <div className="flex justify-between">
+                            <span className="text-sm text-gray-500">Absences</span>
+                            <span className="text-sm font-medium">{payroll?.absences || '0'}</span>
+                        </div>
+                        <div className="flex justify-between">
                             <span className="text-sm text-gray-500">Overtime Hours</span>
                             <span className="text-sm font-medium">{payroll?.overtime_hours || '0'}</span>
                         </div>
@@ -296,4 +300,4 @@ function PayrollStatus({ status }) {
             {status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
     );
-} 
+}
